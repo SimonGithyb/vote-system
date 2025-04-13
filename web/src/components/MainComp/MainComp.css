@@ -1,0 +1,12 @@
+.side {
+    max-width: 10%;
+    margin: 2%;
+    float: left;
+}
+
+main {
+    max-width: 80%;
+    float:left;
+    margin: 5%;
+    text-align: center;
+}

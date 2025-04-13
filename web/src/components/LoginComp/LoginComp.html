@@ -1,0 +1,38 @@
+<section>
+
+  <h2>LOGIN</h2>
+
+  <form @submit.prevent="handleSubmit">
+    
+    <div>
+      <label>email</label>
+      <input type="text" required v-model="email"/>
+    </div>
+
+    <div>
+      <label>password</label>
+      <input type="password" required v-model="password"/>
+    </div>
+
+    <div class="submit">
+      <button>Log In</button>
+    </div>
+
+  </form>
+
+  <v-snackbar
+    v-model="snackbar">
+  {{ snackMessage }}
+
+  <template v-slot:actions>
+    <v-btn
+      color="red"
+      variant="text"
+      @click.native="snackbar = false"
+    >
+      Close
+    </v-btn>
+    </template>
+  </v-snackbar>
+</section>
+
