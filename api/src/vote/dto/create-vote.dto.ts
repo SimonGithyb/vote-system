@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsEmail, IsString, Matches, MinLength } from 'class-validator';
+import { IsArray, IsBoolean, IsDate, IsEmail, IsString, Matches, MinLength } from 'class-validator';
 
 export class CreateVoteDto {
     @IsString()
@@ -7,15 +7,12 @@ export class CreateVoteDto {
     @IsString()
     type: string;
 
-    @IsBoolean()
-    forFuture: boolean;
-
-    @IsArray()
-    answers: [];
+    @IsString()
+    questions: string;
 
     @IsString()
-    ownerId: string;
-    
+    userId: string;
+
     @IsString()
-    category: string;
+    expiryDate: string;
 }

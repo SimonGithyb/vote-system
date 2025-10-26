@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 
 @Schema()
-export class PublicGiveVote extends Document {
+export class GiveVote extends Document {
     @Prop({ required: true, type: mongoose.Types.ObjectId })
     voteId: mongoose.Types.ObjectId;
 
@@ -14,4 +14,4 @@ export class PublicGiveVote extends Document {
 
 }
 
-export const PublicGiveVoteSchema = SchemaFactory.createForClass(PublicGiveVote);
+export const GiveVoteSchema = SchemaFactory.createForClass(GiveVote);

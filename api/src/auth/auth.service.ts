@@ -24,25 +24,34 @@ export class AuthService {
   ) {}
 
   async signup(signupData: SignupDto) {
-    const { name, email, password } = signupData;
+    const {
+      name, 
+      surname,
+      email,
+      password,
+     } = signupData;
 
     const emailInUse = await this.UserModel.findOne({
       email
     });
 
     if(emailInUse) {
-      throw new BadRequestException("Email already in use!");
+      throw new UnauthorizedException("Email already in use!");
     }
 
     const hashPassword = await bcrypt.hash(password, 10);
 
     await this.UserModel.create({
       name,
+      surname,
       email,
       password: hashPassword,
     });
 
-    return 'Account is added!';
+    return {
+      message: 'Account is added!',
+      status: 200,
+    };
   }
 
   async login(credentials : LoginDto) {
@@ -58,10 +67,9 @@ export class AuthService {
       throw new UnauthorizedException("Wrong credentials");
     }
 
-    const tokens = this.generateUserTokens(user._id);
-    
+    const token = await this.generateUserTokens(user._id);
     return {
-      ...tokens,
+      ...token,
       userId: user._id,
       message: 'Login with success',
     };

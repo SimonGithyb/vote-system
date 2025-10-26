@@ -3,28 +3,29 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { CreateVoteDto } from './dto/create-vote.dto';
-import { PublicGiveVoteDto } from './dto/public-give-vote.dto';
-import { CreateVote } from './schemas/create-vote.schema';
-import { PublicGiveVote } from './schemas/give-vote';
+import { GiveVoteDto } from './dto/give-vote.dto';
+import { Vote } from './schemas/create-vote.schema';
+import { GiveVote } from './schemas/give-vote';
 
 @Injectable()
 export class VoteService {
 
   constructor(
-    @InjectModel(CreateVote.name) private createVoteModel: Model<CreateVote>,
-    @InjectModel(PublicGiveVote.name) private publicGiveVoteModel: Model<PublicGiveVote>,
+    @InjectModel(Vote.name) private createVoteModel: Model<Vote>,
+    @InjectModel(GiveVote.name) private publicGiveVoteModel: Model<GiveVote>,
   ) {}
 
   async createNewVote(createVoteDto: CreateVoteDto) {
-    const { name, type, forFuture, answers, ownerId, category, } = createVoteDto;
+    const { name, type, userId, expiryDate } = createVoteDto;
+    let { questions } = createVoteDto;
+    questions = JSON.parse(questions);
 
     await this.createVoteModel.create({
       name,
       type,
-      forFuture,
-      answers,
-      ownerId,
-      category,
+      questions,
+      userId,
+      expiryDate,
     });
 
     return {
@@ -33,19 +34,44 @@ export class VoteService {
     };
   }
 
-  async getVoteByUserId(userId: string) {
-    return await this.createVoteModel.find({ userId });
+  async getVoteByUserId(data: any) {
+    const { userId, lastRecordId, size } = data; 
+
+    return await this.createVoteModel.find({ userId}).limit(size);
+  }
+
+  async getVoteSizeByUserId(userId: string) {
+    const data = await this.createVoteModel.find({ userId });
+
+    return data.length;
+  }
+
+  async getVoteByActiveAndSession(active: string, session: boolean) {
+    const toDay = Date.now();
+    if ( active == 'all' && session ) {
+      return await this.createVoteModel.find();
+    } else if ( active == 'all' && !session ) {
+      return await this.createVoteModel.find({ type: 'public' });
+    } else if ( active && session ) {
+      return await this.createVoteModel.find({ expiryDate: { $gt: toDay } });
+    } else if ( !active && session ) {
+      return await this.createVoteModel.find({ expiryDate: { $lt: toDay } });
+    } else if ( active && !session ) {
+      return await this.createVoteModel.find({ expiryDate: { $gt: toDay }, type: 'public' });
+    } else if ( !active && !session ) {
+      return await this.createVoteModel.find({ expiryDate: { $lt: toDay }, type: 'public' });
+    } else {}
   }
 
   async getAllVotes() {
     return await this.createVoteModel.find();
   }
 
-  async getVotesByCategory(category) {
+  async getVotesByCategory(category: string) {
     return await this.createVoteModel.find({ category });
   }
 
-  async saveVote(vote: PublicGiveVoteDto) {
+  async saveVote(vote: GiveVoteDto) {
     await this.publicGiveVoteModel.create(
       vote
     );

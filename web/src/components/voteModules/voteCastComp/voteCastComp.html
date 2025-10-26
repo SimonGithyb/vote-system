@@ -1,0 +1,23 @@
+
+<section class="vote-cast">
+
+  <div v-if="stage == 'first'" class="category" v-for="(cat, index) in category">
+      <a :title="cat.title" @click="changeStage(cat.name, index)">
+        {{ cat.signature }}
+      </a>
+  </div>
+
+  <div v-if="stage != 'first'" id="selectVote">
+    <Paginator :rows="15" :totalRecords="120" :rowsPerPageOptions="[15, 25, 50]"></Paginator>
+    <div>
+      <header>
+        <h3> {{ selectedCategory.headerTitle }} </h3>
+      </header>
+      <main>
+
+      </main>
+    </div>
+  </div>
+
+
+</section>

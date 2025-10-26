@@ -1,7 +1,11 @@
 <template>
-  <div><menuOffline/>
-    <!-- <menuOnline v-if="session" />
-    <menuOffline v-else /> -->
+  <div>
+    <div v-if="session">
+      <menuOnline />
+    </div>
+    <div v-if="!session">
+      <menuOffline />
+    </div>
   </div>
    
   <RouterView  />
@@ -12,40 +16,41 @@
 </template>
 
 <script>
-// import RegistrationComp from './components/RegistrationComp/RegistrationComp.vue';
-// import LoginComp from './components/LoginComp/LoginComp.vue';
-// import MainComp from './components/MainComp/MainComp.vue';
+
 import menuOffline from './components/menuOffline/menuOffline.vue';
-// import menuOnline from './components/menuOnline/menuOnline.vue';
+import menuOnline from './components/menuOnline/menuOnline.vue';
+
 
 export default {
   name: 'App',
   components: {
     menuOffline,
-    // menuOnline,
+    menuOnline,
   },
   data() {
-    // session: false
+    return {
+      session: false,
+    }
   },
-  method: {
-    // checkSession() {
-    //   this.session = localStorage.session;   
-    // }
-  } 
+  method: { 
+  },
+  beforeMount() {
+    this.session = localStorage.session;
+  }
 }
 
 </script>
 
 <style>
 body {
-  background: lightgray;
+  background: #2a3439;
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  color: #fff;
   margin-top: 30px;
 }
 

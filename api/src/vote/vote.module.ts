@@ -2,18 +2,18 @@ import { Module } from '@nestjs/common';
 import { VoteService } from './vote.service';
 import { VoteController } from './vote.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { CreateVote, CreateVoteSchema } from './schemas/create-vote.schema';
-import { PublicGiveVote, PublicGiveVoteSchema } from './schemas/give-vote';
+import { Vote, VoteSchema } from './schemas/create-vote.schema';
+import { GiveVote, GiveVoteSchema } from './schemas/give-vote';
 
 @Module({
   imports: [MongooseModule.forFeature([
       {
-        name: CreateVote.name,
-        schema: CreateVoteSchema
+        name: Vote.name,
+        schema: VoteSchema
       },
       {
-        name: PublicGiveVote.name,
-        schema: PublicGiveVoteSchema
+        name: GiveVote.name,
+        schema: GiveVoteSchema
       },
     ])],
   controllers: [VoteController],

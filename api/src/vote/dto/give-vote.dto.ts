@@ -1,6 +1,6 @@
 import { IsString, } from 'class-validator';
 
-export class PublicGiveVoteDto {
+export class GiveVoteDto {
     @IsString()
     voteId: string;
 
