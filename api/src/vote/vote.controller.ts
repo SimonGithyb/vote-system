@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Req, UseGuards, Delete, Put } from '@nestjs/common';
+
 import { VoteService } from './vote.service';
-import { CreateVoteDto } from './dto/create-vote.dto';
+import { VoteDto } from './dto/vote.dto';
 import { GiveVoteDto } from './dto/give-vote.dto';
 import { AutenticationGuard } from '../guards/authentication.guard';
 
@@ -9,8 +10,8 @@ export class VoteController {
   constructor(private readonly voteService: VoteService) {}
 
   @UseGuards(AutenticationGuard)
-  @Post('createNewVote')
-  async createNewVote(@Body() data: CreateVoteDto) {
+  @Post()
+  async createNewVote(@Body() data: VoteDto) {
     return this.voteService.createNewVote(data);
   }
 
@@ -23,12 +24,18 @@ export class VoteController {
   @UseGuards(AutenticationGuard)
   @Get('getVoteSize/:userId')
   async getVoteSizeByUserId(@Req() req) {
-    return this.voteService.getVoteSizeByUserId(req.userId);
+    return this.voteService.getVoteSizeByUserId(req.params.userId);
   }
 
-  @Get('getVote/:active/:session')
-  async getVoteByActiveAndSession(@Req() req) {
-    return this.voteService.getVoteByActiveAndSession(req.active, req.session);
+  @UseGuards(AutenticationGuard)
+  @Get('getVotes/:active')
+  async getVoteByActive(@Req() req) {
+    return this.voteService.getVoteByActive(req.params.active);
+  }
+
+  @Get('getVotesNoSession/:active')
+  async getVoteByActiveNoSession(@Req() req) {
+    return this.voteService.getVoteByActiveNoSession(req.params.active);
   }
 
   @UseGuards(AutenticationGuard)
@@ -42,8 +49,20 @@ export class VoteController {
     return this.voteService.getVoteByUserId(req.userId);
   }
 
-  @Post('givePublicVote')
-  async giveVote(@Body()  vote: GiveVoteDto) {
-    return this.voteService.saveVote(vote);
+  @UseGuards(AutenticationGuard)
+  @Delete(':id')
+  async deleteVote(@Req() req) {
+    return this.voteService.deleteVote(req.params.id);
+  }
+
+  @UseGuards(AutenticationGuard)
+  @Put(':id')
+  async updateVote(@Req() req, @Body() data: VoteDto) {
+    return this.voteService.updateVote(req.params.id, data);
+  }
+
+  @Post('saveVoteCast')
+ async saveUserVote(@Body() data: any) {
+    return this.voteService.saveVoteCast(data);
   }
 }

@@ -4,9 +4,10 @@
     <a @click="changeStage('allCreatedVotes')" >Check your votes!</a>
   </nav>
   <main>
-    <div v-if="stage === 'creator'">
-      <h3>CREATE YOUR NEW VOTE!</h3> 
-      <form @submit.prevent="">
+    <div v-if="stage === 'creator' || stage === 'edit'">
+      <h3 v-if="stage === 'creator'">CREATE YOUR NEW VOTE!</h3> 
+      <h3 v-if="stage === 'edit'">EDIT YOUR VOTE!</h3> 
+      <form>
         <div class="formFields">
           <label>Vote Name</label>
           <InputText v-model="voteName" required />
@@ -54,7 +55,8 @@
             </div>
           </div>
         </div>
-      <Button label="SAVE" @click="createNewVote" />
+      <Button label="SAVE" @click="createNewVote" v-if="stage === 'creator'"/>
+      <Button label="SAVE" @click="saveEditVote" v-if="stage === 'edit'"/>
       </form>
     </div>
 
@@ -63,19 +65,29 @@
       <Paginator :rows="paginatorCurrentRow" :totalRecords="paginatorTotalRecords" :rowsPerPageOptions="paginatorRowsPerPageOptions"></Paginator>
 
       <table>
-        <tr>
-          <th>NAME</th>
-          <th>EDIT</th>
-          <th>DELETE</th>
-        </tr>
-        
-        <tr  v-for="vote in votes">
-          <td>{{vote.name}}</td>
-          <td>EDIT</td>
-          <td>DELETE</td>
-        </tr>
+        <tbody>
+          <tr>
+            <th>NAME</th>
+            <th>EDIT</th>
+            <th>DELETE</th>
+            <th>ACTIVE</th>
+            <th>RESULTS</th>
+          </tr>
+          <tr v-for="(vote, index) in votes">
+            <td>{{vote.name}}</td>
+            <td>
+            <img src="edit_icon.svg" alt="edit" title="edit" @click="editVote(vote, index)"/>
+          </td>
+            <td>
+            <img src="delete_icon.svg" alt="delete" title="delete" @click="deleteVote(vote._id, index)"/>
+          </td>
+          <td :style="{'background-color': vote.active ? 'green': 'red'}"></td>
+          <td>
+            <img src="look-into-telescope-see-watch-view-svgrepo-com.svg" alt="look results" title="look results" @click="getResultsVote(vote._id)"/>
+          </td>
+          </tr>
+        </tbody>
       </table>
-
 
     </div>
 

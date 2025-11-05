@@ -1,12 +1,12 @@
-import { IsString, } from 'class-validator';
+import { IsObject, IsString, } from 'class-validator';
 
 export class GiveVoteDto {
     @IsString()
     voteId: string;
 
     @IsString()
-    votedUserId: string;
+    userId: string;
 
-    @IsString()
-    answer: string;
+    @IsObject()
+    answers: object;
 }

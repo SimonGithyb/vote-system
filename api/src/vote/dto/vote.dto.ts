@@ -1,6 +1,6 @@
-import { IsArray, IsBoolean, IsDate, IsEmail, IsString, Matches, MinLength } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 
-export class CreateVoteDto {
+export class VoteDto {
     @IsString()
     name: string;
 

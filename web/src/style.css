@@ -104,3 +104,32 @@ body {
     border-radius: 10px;
     margin-bottom: 1rem;
 }
+
+table {
+    margin: auto;
+    width: 50%;
+    border: none;
+    padding: 10px;
+}
+
+tr {
+    margin: 10px 0 10px 0;
+    padding: 10px;
+}
+
+img {
+    width: 25px;
+    height: 25px;
+    margin: 15px 0 10px 0;
+    cursor: grab;
+}
+
+.radioType {
+    width: 15%;
+    display: inline-block;
+}
+
+Button {
+    margin: 20px;
+}
+

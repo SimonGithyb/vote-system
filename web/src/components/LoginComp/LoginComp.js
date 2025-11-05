@@ -1,5 +1,4 @@
 import axios from 'axios';
-// import router from '@/router';
 
 import config from '@/config';
 
@@ -37,11 +36,10 @@ export default {
           }
           this.snackMessage = res.data.message;
           this.snackbar = true;
-           localStorage.setItem('userId', res.data.userId);
-           localStorage.setItem('accessToken', res.data.accessToken);
-           localStorage.setItem('refreshToken', res.data.RefreshToken);
-           localStorage.setItem('session', true);
-          //  router.push('/');
+          localStorage.setItem('userId', res.data.userId);
+          localStorage.setItem('accessToken', res.data.accessToken);
+          localStorage.setItem('refreshToken', res.data.RefreshToken);
+          localStorage.setItem('session', true);
           location.reload();
           return;
         })

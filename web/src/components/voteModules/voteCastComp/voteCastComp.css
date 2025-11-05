@@ -25,3 +25,11 @@ a {
 header {
     margin-top: 20px;
 }
+
+input {
+    margin: 10px;
+}
+
+#Questions {
+    margin: 20px;
+}

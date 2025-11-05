@@ -19,7 +19,7 @@ export class Vote extends Document {
     userId: mongoose.Types.ObjectId;
 
     @Prop({ required: true })
-    expiryDate: string;
+    expiryDate: number;
 }
 
 export const VoteSchema = SchemaFactory.createForClass(Vote);

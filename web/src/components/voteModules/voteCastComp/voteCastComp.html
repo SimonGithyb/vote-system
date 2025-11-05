@@ -15,9 +15,67 @@
       </header>
       <main>
 
+        <table>
+          <tbody>
+            <tr>
+              <th>NAME</th>
+              <th>GIVE VOTE!</th>
+              <th>RESULTS IS PUBLIC?</th>
+              <th>RESULTS</th>
+            </tr>
+            <tr v-for="(vote, index) in votes">
+              <td>{{vote.name}}</td>
+              <td>
+              <img src="vote-svgrepo-com.svg" alt="give vote" title="Give vote!" @click="openVote(index)"/>
+            </td>
+            <td :style="{'background-color': vote.active ? 'green': 'red'}"></td>
+            <td>
+              <img src="look-into-telescope-see-watch-view-svgrepo-com.svg" alt="look results" title="look results" @click="getResultsVote(vote._id)"/>
+            </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <Dialog v-model:visible="isDialog" modal header="GIVE YOUR OPINION" :style="{ width: '25rem' }"> 
+          <h2> {{ votes[selectVoteIndex].name }} </h2>
+          <!-- <div class="flex items-center gap-4 mb-4"  v-for="(question, index) in votes[selectVoteIndex].questions[currentQuestionIndex]"> -->
+          <div id="questions">
+            <div>
+              <p> Question: {{ currentQuestionIndex + 1 }} of  {{ allQuestionsIndexs }} </p>
+              <button @click="previousQuestion">
+                <img src="arrow-left-svgrepo-com.svg" />
+              </button>
+              <button @click="nextQuestion">
+                <img src="arrow-right-svgrepo-com.svg"/>
+              </button>
+            </div>
+            <h4> {{ votes[selectVoteIndex].questions[currentQuestionIndex].name }} </h4>
+            <div v-for="q in votes[selectVoteIndex].questions[currentQuestionIndex].answers">
+              <input type="radio" v-model="answer" class="radioType" @change="saveAnswer" :value="q">
+              {{q}}
+            </div>
+          </div>
+          <div class="flex justify-end gap-2">
+            <Button label="SAVE AND CLOUSE" @click="saveVoteResult"></Button>
+            <Button label="BACK" @click="isDialog = false"></Button>
+          </div>
+        </Dialog>
+
       </main>
     </div>
   </div>
-
-
 </section>
+
+<v-snackbar
+  v-model="snackbar">
+{{ snackMessage }}
+  <template v-slot:actions>
+    <v-btn
+      color="red"
+      variant="text"
+      @click.native="snackbar = false"
+    >
+      Close
+    </v-btn>
+  </template>
+</v-snackbar>

@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createMemoryHistory } from 'vue-router';
 
 import MainComp from '@/components/MainComp/MainComp.vue';
 import LoginComp from '@/components/LoginComp/LoginComp.vue';
@@ -8,7 +8,7 @@ import voteCreatorComp from '@/components/voteModules/voteCreatorComp/voteCreato
 
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createMemoryHistory(),
   routes:[
     {
       path: '/',

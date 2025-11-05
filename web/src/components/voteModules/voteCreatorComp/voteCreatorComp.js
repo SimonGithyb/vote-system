@@ -32,14 +32,16 @@ export default {
       ],
       voteExpiry: '',
       voteType: 'private',
+      voteId: '',
+      editedVoteIndex: '',
       snackbar: false,
       snackMessage: '',
       votes: [],
       lastRecordId: 0,
       paginatorRowsPerPageOptions: [ 10, 25, 50 ],
-      paginatorCurrentRow: 15,
+      paginatorCurrentRow: 10,
       paginatorTotalRecords: 0,
-      paginatorSideNumber: 0,
+      paginatorSideNumber: 1,
     }
   },
   methods: {
@@ -79,93 +81,104 @@ export default {
       this.questions[questionIndex].answerQuentity++;
     },
     async createNewVote() {
-      await axios.post(`${config.API_URL}/vote/createNewVote`, {
-            name: this.voteName,
-            type: this.voteType,
-            questions: JSON.stringify(this.questions),
-            userId: this.userId,
-            expiryDate: Date.parse(this.voteExpiry),
-        }, {
-            headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': this.accessToken,
-            }
-        })
-        .then(res => {
-          if ( res.data.error) {
-            this.snackMessage = res.data.errorDetails.message;
-            this.snackbar = true;
-            return;
+      await axios.post(`${config.API_URL}/vote`, {
+        name: this.voteName,
+        type: this.voteType,
+        questions: JSON.stringify(this.questions),
+        userId: this.userId,
+        expiryDate: Date.parse(this.voteExpiry),
+      }, {
+          headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': this.accessToken,
           }
-
-          this.snackMessage = res?.data?.message;
+      })
+      .then(res => {
+        if ( res.data.error) {
+          this.snackMessage = res.data.errorDetails.message;
           this.snackbar = true;
           return;
-        })
-        .catch(err => {
-          console.error(err);
+        }
 
-          this.snackMessage =  err.response.data.errorDetails.message || err.message;
-          this.snackbar = true;
-        });
+        this.snackMessage = res?.data?.message;
+        this.snackbar = true;
+        return;
+      })
+      .catch(err => {
+        console.error(err);
+
+        this.snackMessage =  err.response.data.errorDetails.message || err.message;
+        this.snackbar = true;
+        if (err.response.statusText === 'Unauthorized') {
+          localStorage.clear();
+          location.reload();
+        }
+      });
     },  
     async getVotes() {
       await axios.get(`${config.API_URL}/vote/getVote/${this.userId}/${this.lastRecordId}/${this.paginatorCurrentRow}`, {
-            headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': this.accessToken,
-            }
-        })
-        .then(res => {
+        headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': this.accessToken,
+        }
+      })
+      .then(res => {
 
-           if ( res.data.error) {
-            this.snackMessage = res.data.errorDetails.message;
-            this.snackbar = true;
-            return;
-          }
-
-          this.addVotesToArray(res.data);
-
-          this.lastRecordId = this.getLastIdFormVotesArray();
-
-          this.snackMessage = res.data.message || 'Get data succesful!';
+          if ( res.data.error) {
+          this.snackMessage = res.data.errorDetails.message;
           this.snackbar = true;
           return;
-        })
-        .catch(err => {
-          console.error(err);
+        }
 
-          this.snackMessage =  err.response.data.errorDetails.message;
-          this.snackbar = true;
-        });
+        this.addVotesToArray(res.data);
+
+        this.lastRecordId = this.getLastIdFormVotesArray();
+
+        this.snackMessage = res.data.message || 'Get data succesful!';
+        this.snackbar = true;
+        return;
+      })
+      .catch(err => {
+        this.snackMessage =  err.response.data.errorDetails.message;
+        this.snackbar = true;
+
+        if (err.response.statusText === 'Unauthorized') {
+          localStorage.clear();
+          location.reload();
+        }
+      });
     },
     async getAllVotesSize() {
       await axios.get(`${config.API_URL}/vote/getVoteSize/${this.userId}`, {
-            headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': this.accessToken,
-            }
-        })
-        .then(res => {
+        headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': this.accessToken,
+        }
+      })
+      .then(res => {
 
-           if ( res.data.error) {
-            this.snackMessage = res.data.errorDetails.message;
-            this.snackbar = true;
-            return;
-          }
-          console.log(res);
-          this.paginatorTotalRecords = res.data;
-
-          this.snackMessage = res.data.message;
+          if ( res.data.error) {
+          this.snackMessage = res.data.errorDetails.message;
           this.snackbar = true;
           return;
-        })
-        .catch(err => {
-          console.error(err);
+        }
+        this.paginatorTotalRecords = res.data;
 
-          this.snackMessage =  err.response.data.errorDetails.message;
-          this.snackbar = true;
-        });
+        this.snackMessage = res.data.message;
+        this.snackbar = true;
+        return;
+      })
+      .catch(err => {
+        console.error(err);
+
+        this.snackMessage =  err.response.data.errorDetails.message;
+        this.snackbar = true;
+
+        if (err.response.statusText === 'Unauthorized') {
+          localStorage.clear();
+          location.reload();
+        }
+      });
     },
     async initData() {
       if ( this.votes.length === 0 ) {
@@ -174,15 +187,147 @@ export default {
       }
     },
     addVotesToArray(data) {
-      if ( data == null || data == undefined)
+      if ( data == null || data == undefined || data.length == 0)
         return;
       data.forEach(vote => {
+        vote.active = this.checkActiveVote(vote.expiryDate);
         this.votes.push(vote);
       })
     },
     getLastIdFormVotesArray() {
       const lastIndex = this.votes.length - 1;
       return this.votes[lastIndex]._id;
+    },
+    checkActiveVote(expiryDate) {
+      return expiryDate - new Date() < 0 ? false : true;
+    },
+    async deleteVote(id, index) {
+      await axios.delete(`${config.API_URL}/vote/${id}`, {
+        headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': this.accessToken,
+        }
+    })
+    .then(res => {
+        if ( res.data.error) {
+        this.snackMessage = res.data.errorDetails.message;
+        this.snackbar = true;
+        return;
+      }
+
+      this.deleteFormVotesArray(index);
+      this.snackMessage = res.data.message || "Delete with success!";
+      this.snackbar = true;
+      return;
+    })
+    .catch(err => {
+      console.error(err);
+
+      this.snackMessage =  err.response.data.errorDetails.message;
+      this.snackbar = true;
+
+        if (err.response.statusText === 'Unauthorized') {
+          localStorage.clear();
+          location.reload();
+        }
+    });
+    },
+    deleteFormVotesArray(index) {
+      this.votes.splice(index, 1);
+    },
+    async editVote(vote, index) {
+      this.editedVoteIndex = index;
+      this.stage = 'edit';
+      this.voteName = vote.name;
+      this.questions = vote.questions;
+      this.voteId = vote._id;
+      this.voteExpiry = this.msDateToDateTimeFormat(vote.expiryDate);
+      this.voteType = vote.type;
+    },
+    msDateToDateTimeFormat(dateInMs) {
+      return new Date(dateInMs).toISOString().slice(0, 16);
+    },
+    async saveEditVote() {
+      await axios.put(`${config.API_URL}/vote/${this.voteId}`, {
+          name: this.voteName,
+          type: this.voteType,
+          questions: JSON.stringify(this.questions),
+          userId: this.userId,
+          expiryDate: Date.parse(this.voteExpiry),
+        }, 
+        {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': this.accessToken,
+        },
+      })
+      .then(res => {
+
+          if ( res.data.error) {
+          this.snackMessage = res.data.errorDetails.message;
+          this.snackbar = true;
+          return;
+        }
+
+        this.snackMessage = res.data.message || 'Edit with success!';
+        this.snackbar = true;
+        this.editInVoteArray(this.editedVoteIndex);
+        this.clearVoteFieldsAfterEdit();
+        this.changeStage('allCreatedVotes');
+        return;
+      })
+      .catch(err => {
+        this.snackMessage =  err.response.data.errorDetails.message;
+        this.snackbar = true;
+
+        if (err.response.statusText === 'Unauthorized') {
+          localStorage.clear();
+          location.reload();
+        }
+      });
+    },
+    editInVoteArray(index) {
+      this.votes[index].name = this.voteName;
+      this.votes[index].questions = this.questions;
+      this.votes[index].expiryDate = this.voteExpiry;
+      this.votes[index].type = this.voteType;
+    },
+    clearVoteFieldsAfterEdit() {
+      this.voteName = '';
+      this.questions = '';
+      this.voteExpiry = '';
+      this.voteType = 'private';
+    },
+    async getResultsVote(id) {
+      await axios.get(`${config.API_URL}/vote/results/${id}`, {
+        headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': this.accessToken,
+        }
+    })
+    .then(res => {
+
+        if ( res.data.error) {
+        this.snackMessage = res.data.errorDetails.message;
+        this.snackbar = true;
+        return;
+      }
+
+      this.snackMessage = res.data.message;
+      this.snackbar = true;
+      return;
+    })
+    .catch(err => {
+      console.error(err);
+
+      this.snackMessage =  err.response.data.errorDetails.message;
+      this.snackbar = true;
+
+      if (err.response.statusText === 'Unauthorized') {
+        localStorage.clear();
+        location.reload();
+      }
+    });
     },
   },
 };
