@@ -5,8 +5,8 @@ export default {
   props: [],
   data () {
     return {
-
-    }
+      test: "test"
+    };
   },
   computed: {
 
@@ -15,7 +15,9 @@ export default {
 
   },
   methods: {
+  logout() {
 
+  },
   }
 }
 

@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+h2 {
+    margin-top: 25px;
+}
+
+form {
+    max-width: 420px;
+    margin: 30px auto;
+    background: white;
+    text-align: left;
+    padding: 40px;
+    border-radius: 15px;
+}
+
+label {
+    color: #aaa;
+    display: inline-block;
+    margin: 25px 0 15px;
+    font-size: 0.6em;   
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+}
+
+.radioLabel {
+    font-size: 1em;
+    margin: 5px 0 5px;
+}
+
+input {
+    display: block;
+    padding: 10px 6px;
+    width: 100%;
+    box-sizing: border-box;
+    border: none;
+    border-bottom: 1px solid #ddd;
+    color: #555;
+}
+
+input[type="checkbox"] {
+    display: inlinde-block;
+    width: 16px;
+    margin: 0 10px 0 0;
+    position: relative;
+    top: 2px;
+}
+
+.submit button {
+    background: #0b6dff;
+    border: 0;
+    padding: 10px 20px;
+    margin-top: 20px;
+    color: white;
+    border-radius: 20px;
+}
+
+.submit {
+    text-align: center;
+}
+
+:root {
+    --body-bg: var(--p-surface-50);
+    --body-text-color: var(--p-surface-900);
+    --card-border: 1px solid var(--border-color);
+    --card-bg: var(--p-surface-0);
+    --border-color: var(--p-surface-200);
+    --text-color: var(--p-surface-700);
+    --overlay-background: #ffffff;
+}
+
+:root[class='p-dark'] {
+    --body-bg: var(--p-surface-950);
+    --body-text-color: var(--p-surface-50);
+    --card-border: 1px solid transparent;
+    --card-bg: var(--p-surface-900);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --text-color: var(--p-surface-0);
+    --overlay-background: var(--p-surface-900);
+}
+
+html {
+    font-size: 14px;
+    line-height: normal;
+}
+
+body {
+    margin: 0px;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: var(--body-bg);
+    font-weight: normal;
+    color: var(--body-text-color);
+    padding: 1rem;
+}
+
+.card {
+    background: var(--card-bg);
+    border: var(--card-border);
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+table {
+    margin: auto;
+    width: 50%;
+    border: none;
+    padding: 10px;
+}
+
+tr {
+    margin: 10px 0 10px 0;
+    padding: 10px;
+}
+
+img {
+    width: 25px;
+    height: 25px;
+    margin: 15px 0 10px 0;
+    cursor: grab;
+}
+
+.radioType {
+    width: 15%;
+    display: inline-block;
+}
+
+Button {
+    margin: 20px;
+}
+

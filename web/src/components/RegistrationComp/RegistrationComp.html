@@ -2,29 +2,43 @@
 
   <h2>SIGNUP</h2>
 
-  <form @submit.prevent="handleSubmit">
-    <label>Name:</label>
-    <input type="text" placeholder="write your name" v-model="name" id="name" @blur="validateOnlyString(name, 'name')" required/>
+    <form @submit.prevent="handleSubmit">
+        <label>Name:</label>
+        <input type="text" placeholder="write your name" v-model="name" id="name" @blur="validateOnlyString(name, 'name')" required/>
 
-    <label>Surename:</label>
-    <input type="text" placeholder="write your surname" v-model="surname" id="surname" @blur="validateOnlyString(surname, 'surname')" required/>
+        <label>Surename:</label>
+        <input type="text" placeholder="write your surname" v-model="surname" id="surname" @blur="validateOnlyString(surname, 'surname')" required/>
 
-    <label>e-mail:</label>
-    <input type="text" placeholder="write your email" v-model="email" required @blur="checkEmail" id="email"/>
+        <label>e-mail:</label>
+        <input type="text" placeholder="write your email" v-model="email" required @blur="checkEmail" id="email"/>
+        <div>
+          <label>password:</label>
+          <input @focus="changePassWithFocus" @blur="changePassWithBlur" @keyup="checkPassWithKeyup" :type="passFieldType" placeholder="password" id="password" v-model="password" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters" />
 
-    <label>password:</label>
-    <input @focus="changePassWithFocus" @blur="changePassWithBlur" @keyup="checkPassWithKeyup" type="password" placeholder="password" id="password" v-model="password" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters" />
-
-    <label>repeat password:</label>
-    <input type="password" placeholder="repeat password" v-model="password2" @blur="passwordIsSame" required/>
-    
-    <div class="terms">
-        <input type="checkbox" v-model="terms" required />
-        <label>Accept terms and conditions</label>
-    </div>
-    <div class="submit">
-        <button>Create an Account</button>
-    </div>
+          <button @click="obfuscateToggle(0)" class="ml-auto pl-sm _eye " >
+            <div>
+              <img :src="`${eyeSvg}.svg`" width="25px" height="25px" />
+            </div>
+          </button>
+        </div>
+        <div>  
+          <label>repeat password:</label>
+          <input :type="pass2FieldType" placeholder="repeat password" v-model="password2" @blur="passwordIsSame" required/>
+          <button @click="obfuscateToggle(1)" class="ml-auto pl-sm _eye" >
+            <div>
+              <img :src="`${eyeSvg2}.svg`" width="25px" height="25px"/>
+            </div>
+          </button>
+        </div>
+        
+        <div class="terms">
+            <input type="checkbox" v-model="terms" required class="checkboxType"/>
+            <label>Accept terms and conditions</label>
+        </div>
+        <div class="submit">
+            <button>Create an Account</button>
+        </div>
+    </form>
 
     <div id="message">
             <h3>Password must contain the following:</h3>
@@ -32,6 +46,19 @@
             <p id="capital" class="invalid">A <b>capital (uppercase)</b> letter</p>
             <p id="number" class="invalid">A <b>number</b></p>
             <p id="length" class="invalid">Minimum <b>8 characters</b></p>
-        </div>
-</form>
+    </div>
 </section>
+
+<v-snackbar
+  v-model="snackbar">
+{{ snackMessage }}
+  <template v-slot:actions>
+    <v-btn
+      color="red"
+      variant="text"
+      @click.native="snackbar = false"
+    >
+      Close
+    </v-btn>
+  </template>
+</v-snackbar>

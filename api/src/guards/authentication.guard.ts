@@ -16,7 +16,7 @@ export class AutenticationGuard implements CanActivate {
 
     canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
         const request = context.switchToHttp().getRequest();
-        const token = request.headers.authorization?.split(' ')[1];
+        const token = request.headers.authorization; //|| request.headers.authorization?.split(' ')[1];
         
         if (!token) {
             throw new UnauthorizedException();
@@ -40,7 +40,7 @@ export class AutenticationGuard implements CanActivate {
 
     private verifyToken(token: string): any {
         try {
-            this.jwtService.verify(token);
+            return this.jwtService.verify(token);
         } catch (error) {
             Logger.error(error);
             return null;

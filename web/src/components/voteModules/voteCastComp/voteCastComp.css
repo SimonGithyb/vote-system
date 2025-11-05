@@ -1,0 +1,35 @@
+.vote-cast {
+    height: 85%;
+    color: white;
+}
+
+a {
+    margin: 50px 0 25px 32%;
+    padding: 75px;
+    background-color: #4d5d53;
+    color: white;
+    width: 35%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.category {
+    height: 100%;
+}
+
+#selectVote {
+    margin-top: 45px;
+}
+
+header {
+    margin-top: 20px;
+}
+
+input {
+    margin: 10px;
+}
+
+#Questions {
+    margin: 20px;
+}

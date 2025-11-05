@@ -1,0 +1,109 @@
+<section>
+  <nav>
+    <a @click="changeStage('creator')">Create new vote!</a>
+    <a @click="changeStage('allCreatedVotes')" >Check your votes!</a>
+  </nav>
+  <main>
+    <div v-if="stage === 'creator' || stage === 'edit'">
+      <h3 v-if="stage === 'creator'">CREATE YOUR NEW VOTE!</h3> 
+      <h3 v-if="stage === 'edit'">EDIT YOUR VOTE!</h3> 
+      <form>
+        <div class="formFields">
+          <label>Vote Name</label>
+          <InputText v-model="voteName" required />
+        </div>
+
+        <div class="formFields">
+          <label>Expiry</label>
+          <input type="datetime-local" v-model="voteExpiry" required />
+        </div>
+
+        <div>
+          <h5>User in this vote is:</h5>
+
+          <div title="Users without accounts can give a vote">
+            <input id="voteTypePublic" type="radio" v-model="voteType" value="public" class="radioType" />
+            <label for="voteTypePublic" class="radioLabel"> Public </label> 
+          </div>
+
+          <div title="Only users with accounts can give a vote">
+            <input type="radio" v-model="voteType" value="private" class="radioType"/>
+            <label class="radioLabel">PRIVATE</label>
+          </div>
+        </div>
+
+        <Button label="Add new question" @click="addQuestion" />
+        <div>
+          <div v-for="(q, index) in questions">
+            <label>Question {{index + 1}}</label>
+            <InputText v-model="q.name" required />
+            <h5>Total answers: {{q.answerQuentity}} for question number: {{index + 1}}</h5>
+            <div>
+              <Button label="Add answer dialog" @click="q.visible = true" />
+              <Dialog v-model:visible="q.visible" modal header="Add answers for your question" :style="{ width: '25rem' }"> 
+                  <Button label="Add new answer" @click="addAnswer(index)" />
+                  <div class="flex items-center gap-4 mb-4"  v-for="inx in q.answerQuentity">
+                      <label class="font-semibold w-24">Answer {{inx}}</label>
+                      <InputText class="flex-auto" autocomplete="off" v-model="q.answers[inx - 1]" required/>
+                  </div>
+                  <div class="flex justify-end gap-2">
+                    <Button label="BACK" @click="q.visible = false"></Button>
+                  </div>
+              </Dialog>
+              <div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <Button label="SAVE" @click="createNewVote" v-if="stage === 'creator'"/>
+      <Button label="SAVE" @click="saveEditVote" v-if="stage === 'edit'"/>
+      </form>
+    </div>
+
+    <div v-else-if="stage == 'allCreatedVotes'">
+      <h1> On this page on future you can see all vote what you create and you can it modyfikated or delete </h1>
+      <Paginator :rows="paginatorCurrentRow" :totalRecords="paginatorTotalRecords" :rowsPerPageOptions="paginatorRowsPerPageOptions"></Paginator>
+
+      <table>
+        <tbody>
+          <tr>
+            <th>NAME</th>
+            <th>EDIT</th>
+            <th>DELETE</th>
+            <th>ACTIVE</th>
+            <th>RESULTS</th>
+          </tr>
+          <tr v-for="(vote, index) in votes">
+            <td>{{vote.name}}</td>
+            <td>
+            <img src="edit_icon.svg" alt="edit" title="edit" @click="editVote(vote, index)"/>
+          </td>
+            <td>
+            <img src="delete_icon.svg" alt="delete" title="delete" @click="deleteVote(vote._id, index)"/>
+          </td>
+          <td :style="{'background-color': vote.active ? 'green': 'red'}"></td>
+          <td>
+            <img src="look-into-telescope-see-watch-view-svgrepo-com.svg" alt="look results" title="look results" @click="getResultsVote(vote._id)"/>
+          </td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+
+  </main>
+</section>
+
+<v-snackbar
+  v-model="snackbar">
+{{ snackMessage }}
+  <template v-slot:actions>
+    <v-btn
+      color="red"
+      variant="text"
+      @click.native="snackbar = false"
+    >
+      Close
+    </v-btn>
+  </template>
+</v-snackbar>

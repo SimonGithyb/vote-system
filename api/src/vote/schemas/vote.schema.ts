@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 
 @Schema()
-export class CreateVote extends Document {
+export class Vote extends Document {
     @Prop({ required: true })
     name: string;
 
@@ -10,16 +10,16 @@ export class CreateVote extends Document {
     type: string;
 
     @Prop({ required: true })
-    forFuture: boolean;
+    questions: [{
+        name: string,
+        answers: []
+    }];
 
     @Prop({ required: true })
-    answers: []
+    userId: mongoose.Types.ObjectId;
 
     @Prop({ required: true })
-    ownerId: mongoose.Types.ObjectId;
-
-    @Prop({ defalut:'Normal life' })
-    category: string;
+    expiryDate: number;
 }
 
-export const CreateVoteSchema = SchemaFactory.createForClass(CreateVote);
+export const VoteSchema = SchemaFactory.createForClass(Vote);

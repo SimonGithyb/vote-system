@@ -11,7 +11,12 @@
 
     <div>
       <label>password</label>
-      <input type="password" required v-model="password"/>
+      <input :type="passFieldType" required v-model="password"/>
+      <button @click="obfuscateToggle()" class="ml-auto pl-sm _eye" >
+        <div>
+          <img :src="`${eyeSvg}.svg`" width="25px" height="25px"/>
+        </div>
+      </button>
     </div>
 
     <div class="submit">
@@ -36,3 +41,16 @@
   </v-snackbar>
 </section>
 
+<v-snackbar
+  v-model="snackbar">
+{{ snackMessage }}
+  <template v-slot:actions>
+    <v-btn
+      color="red"
+      variant="text"
+      @click.native="snackbar = false"
+    >
+      Close
+    </v-btn>
+  </template>
+</v-snackbar>

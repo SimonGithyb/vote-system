@@ -1,60 +1,12 @@
-form {
-    max-width: 420px;
-    margin: 30px auto;
-    background: white;
-    text-align: left;
-    padding: 40px;
-    border-radius: 15px;
-}
-
-label {
-    color: #aaa;
-    display: inline-block;
-    margin: 25px 0 15px;
-    font-size: 0.6em;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: bold;
-}
-
-input {
-    display: block;
-    padding: 10px 6px;
-    width: 100%;
-    box-sizing: border-box;
-    border: none;
-    border-bottom: 1px solid #ddd;
-    color: #555;
-}
-
-input[type="checkbox"] {
-    display: inlinde-block;
-    width: 16px;
-    margin: 0 10px 0 0;
-    position: relative;
-    top: 2px;
-}
-
-button {
-    background: #0b6dff;
-    border: 0;
-    padding: 10px 20px;
-    margin-top: 20px;
-    color: white;
-    border-radius: 20px;
-}
-
-.submit {
-    text-align: center;
-}
 
 /* The message box is shown when the user clicks on the password field */
 #message {
 display:none;
-color: #000;
+color: #fff;
 position: relative;
 padding: 20px;
-margin-top: 10px;
+margin: 250px 0 0 50px;
+float:left;
 }
 
 #message p {
@@ -92,3 +44,14 @@ content: "✖";
     color: black;
 }
 
+form {
+    float: left;
+    min-width: 400px;
+    max-width: 650px;
+    margin-left: 40%;
+}
+
+.checkboxType {
+    width: 15%;
+    display: inline-block;
+}
