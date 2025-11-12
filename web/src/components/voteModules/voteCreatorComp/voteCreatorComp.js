@@ -42,6 +42,10 @@ export default {
       paginatorCurrentRow: 10,
       paginatorTotalRecords: 0,
       paginatorSideNumber: 1,
+      publicResults: true,
+      resultsDialog: false,
+      voteResults: [],
+      currentQuestionIndex: 0,
     }
   },
   methods: {
@@ -87,6 +91,7 @@ export default {
         questions: JSON.stringify(this.questions),
         userId: this.userId,
         expiryDate: Date.parse(this.voteExpiry),
+        publicResults: this.publicResults,
       }, {
           headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -299,7 +304,7 @@ export default {
       this.voteType = 'private';
     },
     async getResultsVote(id) {
-      await axios.get(`${config.API_URL}/vote/results/${id}`, {
+      await axios.get(`${config.API_URL}/vote/voteResults/${id}/${this.userId}`, {
         headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Authorization': this.accessToken,
@@ -313,6 +318,7 @@ export default {
         return;
       }
 
+      this.voteResults = res.data.data;
       this.snackMessage = res.data.message;
       this.snackbar = true;
       return;
@@ -328,6 +334,25 @@ export default {
         location.reload();
       }
     });
+    },
+    nextQuestion() {
+      if( this.currentQuestionIndex >= this.questionQuentity - 1 ) {
+        return;
+      }
+      this.currentQuestionIndex++;
+    },
+    previousQuestion() {
+      if ( this.currentQuestionIndex <= 0 )
+        return;
+      this.currentQuestionIndex--;
+    },
+    openResultsVote(vote) {
+      this.getResultsVote(vote._id);
+      this.voteName = vote.name;
+      this.questions = vote.questions;
+      this.questionQuentity = vote.questions.length;
+      this.currentQuestionIndex = 0;
+      this.resultsDialog = true;
     },
   },
 };

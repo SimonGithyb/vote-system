@@ -65,4 +65,9 @@ export class VoteController {
  async saveUserVote(@Body() data: any) {
     return this.voteService.saveVoteCast(data);
   }
+
+  @Get('voteResults/:voteId/:userId')
+   async voteResuls(@Req() req) {
+    return this.voteService.getVoteResult(req.params.voteId, req.params.userId);
+  }
 }
