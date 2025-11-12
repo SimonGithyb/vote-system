@@ -5,18 +5,19 @@ import { Model } from 'mongoose';
 import { VoteDto } from './dto/vote.dto';
 import { GiveVoteDto } from './dto/give-vote.dto';
 import { Vote } from './schemas/vote.schema';
-import { GiveVote } from './schemas/give-vote';
+import { CastVote } from './schemas/cast-vote';
+import { count } from 'console';
 
 @Injectable()
 export class VoteService {
 
   constructor(
     @InjectModel(Vote.name) private voteModel: Model<Vote>,
-    @InjectModel(GiveVote.name) private castVoteModel: Model<GiveVote>,
+    @InjectModel(CastVote.name) private castVoteModel: Model<CastVote>,
   ) {}
 
   async createNewVote(data: VoteDto) {
-    const { name, type, userId, expiryDate } = data;
+    const { name, type, userId, expiryDate, publicResults, } = data;
     let { questions } = data;
     questions = JSON.parse(questions);
 
@@ -26,12 +27,17 @@ export class VoteService {
       questions,
       userId,
       expiryDate,
+      publicResults,
     });
 
     return {
       message: 'Your vote is created!',
       status: 200,
     };
+  }
+
+  async getVoteById(voteId: string) {
+    return await this.voteModel.findById(voteId);
   }
 
   async getVoteByUserId(data: any) {
@@ -103,4 +109,69 @@ export class VoteService {
       date: new Date().getTime(),
     });
   }
+
+  async getVoteCastByVoteid(voteId: string) {
+    return await this.castVoteModel.find({ voteId });
+
+  }
+  
+  async getVoteResult(voteId: string, userId: string) {
+
+    const vote = await this.getVoteById(voteId);
+    if ( !this.checkAccessToVoteResults( vote, userId ) )
+      return {
+        message: 'You havent access to results for this vote',
+        status: 200,
+      }
+    const usersCasts = await this.getVoteCastByVoteid(voteId);
+    const answers = this.preperAnswerForCount(vote.questions);
+
+    const counted = this.countAnswers(usersCasts, answers);
+
+    return {
+      data: {
+        voteName: vote.name,
+        voteId: vote._id,
+        results: counted
+      },
+      status: 200,
+      message: `all results for vote ${vote.name}`
+    }
+  }
+
+  checkAccessToVoteResults(vote: any, userId: string): boolean {
+    if ( vote.publicResults )
+      return true;
+    else if ( vote.userId == userId )
+      return true;
+    return false;
+  }
+
+  preperAnswerForCount(questions) {
+    const data = []
+    questions.forEach(question => {
+      question?.answers.forEach(answer => {
+        data.push({
+          questionName: question.name,
+          answerName: answer,
+          quantity: 0,
+        })
+      })
+    });
+    return data;
+  }
+
+  countAnswers(allUsersAnswers, allQuestions) {
+    allUsersAnswers.forEach(userCast => {
+      userCast.answers.forEach(answer => {
+        allQuestions.forEach(el => {
+        if ( answer === el.answerName) {
+          el.quantity++;
+        }
+      })
+      })
+    });
+    return allQuestions;
+  }
+
 }

@@ -29,8 +29,11 @@
               <img src="vote-svgrepo-com.svg" alt="give vote" title="Give vote!" @click="openVote(index)"/>
             </td>
             <td :style="{'background-color': vote.active ? 'green': 'red'}"></td>
-            <td>
-              <img src="look-into-telescope-see-watch-view-svgrepo-com.svg" alt="look results" title="look results" @click="getResultsVote(vote._id)"/>
+            <td v-if="vote.publicResults">
+              <img src="look-into-telescope-see-watch-view-svgrepo-com.svg" alt="look results" title="look results" @click="openResultsVote(vote)"/>
+            </td>
+            <td v-else>
+              <img src="no-access-svgrepo-com.svg" alt="you havent access" title="you havent access" @click="onAcess(vote.name)"/>
             </td>
             </tr>
           </tbody>
@@ -38,7 +41,6 @@
 
         <Dialog v-model:visible="isDialog" modal header="GIVE YOUR OPINION" :style="{ width: '25rem' }"> 
           <h2> {{ votes[selectVoteIndex].name }} </h2>
-          <!-- <div class="flex items-center gap-4 mb-4"  v-for="(question, index) in votes[selectVoteIndex].questions[currentQuestionIndex]"> -->
           <div id="questions">
             <div>
               <p> Question: {{ currentQuestionIndex + 1 }} of  {{ allQuestionsIndexs }} </p>
@@ -58,6 +60,30 @@
           <div class="flex justify-end gap-2">
             <Button label="SAVE AND CLOUSE" @click="saveVoteResult"></Button>
             <Button label="BACK" @click="isDialog = false"></Button>
+          </div>
+        </Dialog>
+
+        <Dialog v-model:visible="resultsDialog" modal header="VOTE RESULTS" :style="{ width: '25rem' }"> 
+          <h2> {{ voteName }} </h2>
+          <div id="questions">
+            <div>
+              <p> Question: {{ currentQuestionIndex + 1 }} of  {{ allQuestionsIndexs }} </p>
+              <button @click="previousQuestion">
+                <img src="arrow-left-svgrepo-com.svg" />
+              </button>
+              <button @click="nextQuestion">
+                <img src="arrow-right-svgrepo-com.svg"/>
+              </button>
+            </div>
+            <h4> {{ questions[currentQuestionIndex].name }} </h4>
+            <div v-for="results in voteResults.results">
+              <div v-if="results.questionName == questions[currentQuestionIndex].name">
+                {{ results.answerName }} all votes: {{ results.quantity }}
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-end gap-2">
+            <Button label="BACK" @click="resultsDialog = false"></Button>
           </div>
         </Dialog>
 

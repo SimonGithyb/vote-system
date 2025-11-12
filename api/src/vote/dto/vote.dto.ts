@@ -1,4 +1,4 @@
-import { IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsString } from 'class-validator';
 
 export class VoteDto {
     @IsString()
@@ -15,4 +15,7 @@ export class VoteDto {
 
     @IsString()
     expiryDate: string;
+
+    @IsString()
+    publicResults: boolean;
 }

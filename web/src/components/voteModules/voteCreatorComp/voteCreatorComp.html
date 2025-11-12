@@ -32,6 +32,19 @@
           </div>
         </div>
 
+        <div>
+          <h5>Vote results is:</h5>
+          <div title="All can see results">
+            <input id="voteTypePublic" type="radio" v-model="publicResults" value="true" class="radioType" />
+            <label for="voteTypePublic" class="radioLabel"> Public </label> 
+          </div>
+
+          <div title="Only owner and administration can see results">
+            <input type="radio" v-model="publicResults" value="false" class="radioType"/>
+            <label class="radioLabel">PRIVATE</label>
+          </div>
+        </div>
+
         <Button label="Add new question" @click="addQuestion" />
         <div>
           <div v-for="(q, index) in questions">
@@ -83,13 +96,37 @@
           </td>
           <td :style="{'background-color': vote.active ? 'green': 'red'}"></td>
           <td>
-            <img src="look-into-telescope-see-watch-view-svgrepo-com.svg" alt="look results" title="look results" @click="getResultsVote(vote._id)"/>
+            <img src="look-into-telescope-see-watch-view-svgrepo-com.svg" alt="look results" title="look results" @click="openResultsVote(vote)"/>
           </td>
           </tr>
         </tbody>
       </table>
 
     </div>
+
+    <Dialog v-model:visible="resultsDialog" modal header="VOTE RESULTS" :style="{ width: '25rem' }"> 
+      <h2> {{ voteName }} </h2>
+      <div id="questions">
+        <div>
+          <p> Question: {{ currentQuestionIndex + 1 }} of  {{ questionQuentity }} </p>
+          <button @click="previousQuestion">
+            <img src="arrow-left-svgrepo-com.svg" />
+          </button>
+          <button @click="nextQuestion">
+            <img src="arrow-right-svgrepo-com.svg"/>
+          </button>
+        </div>
+        <h4> {{ questions[currentQuestionIndex].name }} </h4>
+        <div v-for="results in voteResults.results">
+          <div v-if="results.questionName == questions[currentQuestionIndex].name">
+            {{ results.answerName }} all votes: {{ results.quantity }}
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2">
+        <Button label="BACK" @click="resultsDialog = false"></Button>
+      </div>
+    </Dialog>
 
   </main>
 </section>

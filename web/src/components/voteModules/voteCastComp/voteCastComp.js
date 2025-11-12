@@ -51,6 +51,10 @@ export default {
       answer: '',
       snackbar: false,
       snackMessage: '',
+      voteName: '',
+      questions: [],
+      resultsDialog: false,
+      voteResults: [],
     };
   },
   methods: {
@@ -158,7 +162,6 @@ export default {
     },
     nextQuestion() {
       if( this.currentQuestionIndex >= this.allQuestionsIndexs - 1 ) {
-        console.log('work')
         return;
       }
       this.currentQuestionIndex++;
@@ -188,7 +191,7 @@ export default {
             return;
         }
 
-        this.snackMessage = res.data.message;
+        this.snackMessage = res.data.message || "Your vote is saved!";
         this.snackbar = true;
         this.isDialog = false;
         return;
@@ -200,5 +203,49 @@ export default {
         this.snackbar = true;
       });
     },
+    async getResultsVote(id) {
+      await axios.get(`${config.API_URL}/vote/voteResults/${id}/${this.userId}`, {
+        headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': this.accessToken,
+        }
+    })
+    .then(res => {
+
+        if ( res.data.error) {
+        this.snackMessage = res.data.errorDetails.message;
+        this.snackbar = true;
+        return;
+      }
+
+      this.voteResults = res.data.data;
+      this.snackMessage = res.data.message;
+      this.snackbar = true;
+      return;
+    })
+    .catch(err => {
+      console.error(err);
+
+      this.snackMessage =  err.response.data.errorDetails.message;
+      this.snackbar = true;
+
+      if (err.response.statusText === 'Unauthorized') {
+        localStorage.clear();
+        location.reload();
+      }
+    });
+    },
+    openResultsVote(vote) {
+      this.getResultsVote(vote._id);
+      this.voteName = vote.name;
+      this.questions = vote.questions;
+      this.allQuestionsIndexs = vote.questions.length;
+      this.currentQuestionIndex = 0;
+      this.resultsDialog = true;
+    },
+    onAcess(name) {
+      this.snackbar = true;
+      this.snackMessage = `You havent access to results for vote: ${name}`
+    }
   }
 }

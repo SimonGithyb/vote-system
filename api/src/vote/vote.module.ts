@@ -3,7 +3,7 @@ import { VoteService } from './vote.service';
 import { VoteController } from './vote.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Vote, VoteSchema } from './schemas/vote.schema';
-import { GiveVote, GiveVoteSchema } from './schemas/give-vote';
+import { CastVote, CastVoteSchema } from './schemas/cast-vote';
 
 @Module({
   imports: [MongooseModule.forFeature([
@@ -12,8 +12,8 @@ import { GiveVote, GiveVoteSchema } from './schemas/give-vote';
         schema: VoteSchema
       },
       {
-        name: GiveVote.name,
-        schema: GiveVoteSchema
+        name: CastVote.name,
+        schema: CastVoteSchema
       },
     ])],
   controllers: [VoteController],

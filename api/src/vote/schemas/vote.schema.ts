@@ -20,6 +20,9 @@ export class Vote extends Document {
 
     @Prop({ required: true })
     expiryDate: number;
+
+    @Prop({ required: true })
+    publicResults: boolean;
 }
 
 export const VoteSchema = SchemaFactory.createForClass(Vote);
