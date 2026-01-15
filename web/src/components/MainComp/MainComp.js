@@ -1,4 +1,3 @@
-
 export default {
   name: 'main-comp',
   components: {},

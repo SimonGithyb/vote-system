@@ -49,16 +49,3 @@
     </div>
 </section>
 
-<v-snackbar
-  v-model="snackbar">
-{{ snackMessage }}
-  <template v-slot:actions>
-    <v-btn
-      color="red"
-      variant="text"
-      @click.native="snackbar = false"
-    >
-      Close
-    </v-btn>
-  </template>
-</v-snackbar>

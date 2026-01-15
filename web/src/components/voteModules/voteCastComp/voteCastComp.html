@@ -29,7 +29,7 @@
               <img src="vote-svgrepo-com.svg" alt="give vote" title="Give vote!" @click="openVote(index)"/>
             </td>
             <td :style="{'background-color': vote.active ? 'green': 'red'}"></td>
-            <td v-if="vote.publicResults">
+            <td v-if="vote.publicResults || vote.userId === userId">
               <img src="look-into-telescope-see-watch-view-svgrepo-com.svg" alt="look results" title="look results" @click="openResultsVote(vote)"/>
             </td>
             <td v-else>
@@ -76,7 +76,7 @@
               </button>
             </div>
             <h4> {{ questions[currentQuestionIndex].name }} </h4>
-            <div v-for="results in voteResults.results">
+            <div v-for="results in voteResults?.results">
               <div v-if="results.questionName == questions[currentQuestionIndex].name">
                 {{ results.answerName }} all votes: {{ results.quantity }}
               </div>
@@ -91,17 +91,3 @@
     </div>
   </div>
 </section>
-
-<v-snackbar
-  v-model="snackbar">
-{{ snackMessage }}
-  <template v-slot:actions>
-    <v-btn
-      color="red"
-      variant="text"
-      @click.native="snackbar = false"
-    >
-      Close
-    </v-btn>
-  </template>
-</v-snackbar>
