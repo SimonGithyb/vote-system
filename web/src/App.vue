@@ -8,34 +8,40 @@
     </div>
   </div>
    
-  <RouterView  />
-  
+  <RouterView />
+  <Snackbar />
   <footer>
     &#169; 2025 Poland, All rights reserved. <strong>APPLICATION VERSION: ALFA 0.0.1</strong>
   </footer>
 </template>
-
 <script>
 
 import menuOffline from './components/menuOffline/menuOffline.vue';
 import menuOnline from './components/menuOnline/menuOnline.vue';
-
+import Snackbar from './components/Snackbar.vue';
+import { useSnackbarStore } from '@/stores/snackbar';
 
 export default {
   name: 'App',
+
   components: {
     menuOffline,
     menuOnline,
+    Snackbar,
   },
   data() {
     return {
       session: false,
     }
   },
-  method: { 
+  methods: {
   },
   beforeMount() {
     this.session = localStorage.session;
+    if (this.session) {
+      const snackbar = useSnackbarStore();
+      snackbar.show("you are logged in", {type: 'success'});
+    }
   }
 }
 

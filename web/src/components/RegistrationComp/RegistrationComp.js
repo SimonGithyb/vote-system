@@ -1,7 +1,5 @@
-import axios from 'axios';
-import router from '@/router';
-
-import config from '@/config';
+import httpService from '@/services/http.service';
+import { useSnackbarStore } from '@/stores/snackbar';
 
 export default {
     name: 'RegistrationComp',
@@ -20,9 +18,6 @@ export default {
             passIsGood: false,
             emailIsGood: false,
             passIsSame: false,
-            snackMessage: '',
-            snackbar: false,
-            
         }
     },
     methods: {
@@ -31,35 +26,13 @@ export default {
 
             if (!valid)
                 return;
-
-            await axios.post(`${config.API_URL}/auth/signup`, {
+            await httpService.signup({
                 name: this.name,
                 surname: this.surname,
                 email: this.email,
                 password: this.password,
-            },
-            {
-                headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Access-Control-Allow-Origin': '*',
-                },
-                validateStatus: () => true
-            })
-        .then(res => {
-            if ( res.data.error) {
-                this.snackMessage = res.data.errorDetails.message;
-                this.snackbar = true;
-                return;
-            }
-          this.snackMessage = res.data.message;
-          this.snackbar = true;
-          setTimeout(router.push('/login'), 5000);
-          return;
-        })
-        .catch(err => {
-          this.snackMessage =  err.data.errorDetails.message;
-          this.snackbar = true;
-        });
+            });
+        
         },
         async changePassWithFocus() {
             document.getElementById("message").style.display = "block";
@@ -164,25 +137,21 @@ export default {
             return true;
         },
         checkBeforeSendToApi() {
+            const snackbar = useSnackbarStore();
             if (!this.terms) {
-                this.snackMessage = 'You must accept terms and conditions!';
-                this.snackbar = true;
+                snackbar.show('You must accept terms and conditions!');
                 return false;
             } else if (!this.passIsGood) {
-                this.snackMessage = 'Your password does not meet the requirements';
-                this.snackbar = true;
+                snackbar.show('Your password does not meet the requirements');
                 return false;
             }  else if (!this.passIsSame) {
-                this.snackMessage = 'Your passwords is dont same';
-                this.snackbar = true;
+                snackbar.show('Your passwords is dont same');
                 return false;
             } else if (!this.emailIsGood) {
-                this.snackMessage = 'Email does not meet requirements';
-                this.snackbar = true;
+                snackbar.show('Email does not meet requirements');
                 return false;
             } else {
-                this.snackMessage = 'Data in accordance with requirements';
-                this.snackbar = true;
+                snackbar.show('Data in accordance with requirements');
                 return true;
             }
         },

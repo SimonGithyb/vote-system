@@ -1,10 +1,10 @@
-import config from '@/config';
-import axios from 'axios';
-
 import Dialog from 'primevue/dialog';
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Paginator from 'primevue/paginator';
+
+import httpService from '@/services/http.service';
+import { useSnackbarStore } from '@/stores/snackbar';
 
 export default {
   name: 'vote-cast',
@@ -16,7 +16,6 @@ export default {
   },
   data () {
     return {
-      accessToken: localStorage.getItem('accessToken'),
       userId: localStorage.getItem('userId'),
       session: false,
       stage: 'first',
@@ -49,8 +48,6 @@ export default {
       allQuestionsIndexs: 0,
       answers: [],
       answer: '',
-      snackbar: false,
-      snackMessage: '',
       voteName: '',
       questions: [],
       resultsDialog: false,
@@ -65,77 +62,22 @@ export default {
       this.checkSessionAndInitData();
     },
     async getVoteSession() {
-      const voteRage = this.selectedCategory.active;
-
-      await axios.get(`${config.API_URL}/vote/getVotes/${voteRage}`, {
-            headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': this.accessToken,
-            }
-        })
-        .then(res => {
-
-          if ( res.data.error) {
-              this.snackMessage = res.data.errorDetails.message;
-              this.snackbar = true;
-              return;
-          }
-          
-          res.data.forEach(element => {
-            element.active = this.checkActiveVote(element.expiryDate);
-          });
-
-          this.votes = res.data;
-          this.snackMessage = res.data.message;
-          this.snackbar = true;
-          return;
-        })
-        .catch(err => {
-          console.error(err);
-
-          this.snackMessage =  err.response.data.errorDetails.message;
-          this.snackbar = true;
-
-        if (err.response.statusText === 'Unauthorized') {
-          localStorage.clear();
-          location.reload();
-        }
-        });
+      const votes = await httpService.getVoteByActive(this.selectedCategory.active);
+      this.votes = this.checkActiveVoteStatus(votes);
     },
     checkActiveVote(expiryDate) {
       return expiryDate - new Date() < 0 ? false : true;
     },
     async getVoteNoSession() {
-      const voteRage = this.selectedCategory.active;
-
-      await axios.get(`${config.API_URL}/vote/getVotesNoSession/${voteRage}`, {
-            headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            }
-        })
-        .then(res => {
-
-          if ( res.data.error) {
-              this.snackMessage = res.data.errorDetails.message;
-              this.snackbar = true;
-              return;
-          }
-
-          res.data.forEach(element => {
-            element.active = this.checkActiveVote(element.expiryDate);
-          });
-
-          this.votes = res.data;
-          this.snackMessage = res.data.message;
-          this.snackbar = true;
-          return;
-        })
-        .catch(err => {
-          console.error(err);
-
-          this.snackMessage =  err.response.data.errorDetails.message;
-          this.snackbar = true;
-        });
+      const votes = await httpService.getVoteWithoutSession(this.selectedCategory.active);
+      this.votes = this.checkActiveVoteStatus(votes);
+      console.log(this.votes)
+    },
+    checkActiveVoteStatus(data) {
+      data.forEach(element => {
+        element.active = this.checkActiveVote(element.expiryDate);
+      });
+      return data;
     },
     checkSessionAndInitData() {
       this.session = localStorage.getItem('session');
@@ -148,9 +90,8 @@ export default {
     },
     openVote(index) {
       if ( !this.votes[index].active ) {
-        console.log('work')
-        this.snackMessage =  'This vote is ended! You cant give your vote! Too late!';
-        this.snackbar = true;
+        const snackbar = useSnackbarStore();
+        snackbar.show( 'This vote is ended! You cant give your vote! Too late!');
         return; 
       } 
       this.selectVoteIndex = index;
@@ -174,69 +115,19 @@ export default {
       this.answer = this.answers[this.currentQuestionIndex];
     },
     async saveVoteResult() {
-      await axios.post(`${config.API_URL}/vote/saveVoteCast`, {
+      await httpService.saveVoteCast({
         answers: this.answers,
         voteId: this.votes[this.selectVoteIndex]._id,
         userId: this.userId,
-      }, {
-          headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          }
-      })
-      .then(res => {
-
-        if ( res.data.error) {
-            this.snackMessage = res.data.errorDetails.message;
-            this.snackbar = true;
-            return;
-        }
-
-        this.snackMessage = res.data.message || "Your vote is saved!";
-        this.snackbar = true;
-        this.isDialog = false;
-        return;
-      })
-      .catch(err => {
-        console.error(err);
-
-        this.snackMessage =  err.response.data.errorDetails.message;
-        this.snackbar = true;
       });
+
+      this.isDialog = false;
     },
-    async getResultsVote(id) {
-      await axios.get(`${config.API_URL}/vote/voteResults/${id}/${this.userId}`, {
-        headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': this.accessToken,
-        }
-    })
-    .then(res => {
-
-        if ( res.data.error) {
-        this.snackMessage = res.data.errorDetails.message;
-        this.snackbar = true;
-        return;
-      }
-
-      this.voteResults = res.data.data;
-      this.snackMessage = res.data.message;
-      this.snackbar = true;
-      return;
-    })
-    .catch(err => {
-      console.error(err);
-
-      this.snackMessage =  err.response.data.errorDetails.message;
-      this.snackbar = true;
-
-      if (err.response.statusText === 'Unauthorized') {
-        localStorage.clear();
-        location.reload();
-      }
-    });
+    async getResultsVote(voteId, userId) {
+      this.voteResults = await httpService.getVoteResult(voteId, userId);
     },
     openResultsVote(vote) {
-      this.getResultsVote(vote._id);
+      this.getResultsVote(vote._id, this.userId);
       this.voteName = vote.name;
       this.questions = vote.questions;
       this.allQuestionsIndexs = vote.questions.length;
@@ -244,8 +135,8 @@ export default {
       this.resultsDialog = true;
     },
     onAcess(name) {
-      this.snackbar = true;
-      this.snackMessage = `You havent access to results for vote: ${name}`
+        const snackbar = useSnackbarStore();
+        snackbar.show(`You havent access to results for vote: ${name}`);
     }
   }
 }
