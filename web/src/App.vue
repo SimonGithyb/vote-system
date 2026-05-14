@@ -1,18 +1,24 @@
 <template>
-  <div>
-    <div v-if="session">
-      <menuOnline />
-    </div>
-    <div v-if="!session">
-      <menuOffline />
-    </div>
+  <div id="app">
+    <header>
+      <div v-if="session">
+        <menuOnline />
+      </div>
+      <div v-if="!session">
+        <menuOffline />
+      </div>
+    </header>
+     
+    <main class="main-container container">
+      <RouterView />
+    </main>
+
+    <Snackbar />
+
+    <footer>
+      &#169; 2025 Poland, All rights reserved. <strong>APPLICATION VERSION: ALFA 0.0.1</strong>
+    </footer>
   </div>
-   
-  <RouterView />
-  <Snackbar />
-  <footer>
-    &#169; 2025 Poland, All rights reserved. <strong>APPLICATION VERSION: ALFA 0.0.1</strong>
-  </footer>
 </template>
 <script>
 
@@ -48,36 +54,24 @@ export default {
 </script>
 
 <style>
-body {
-  background: #2a3439;
-}
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #fff;
-  margin-top: 30px;
 }
 
 a {
-  margin: 20px;
-  padding: 15;
-  font-weight: bold;
+  text-decoration: none;
+  transition: opacity 0.2s;
 }
 
 a:hover {
+  opacity: 0.8;
   cursor: pointer;
 }
 
 .routerLink {
     text-decoration: none;
-    color: green  ;
+    color: var(--primary-color);
 }
-
-footer {
-  position: fixed;
-  bottom: 0;
-}
-
 </style>

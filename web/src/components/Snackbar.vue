@@ -24,18 +24,31 @@ const snackbar = useSnackbarStore()
   left: 50%;
   transform: translateX(-50%);
   padding: 12px 24px;
-  border-radius: 6px;
+  border-radius: 12px;
   color: white;
   cursor: pointer;
   z-index: 9999;
-  min-width: 200px;
+  min-width: 250px;
+  max-width: 90%;
   text-align: center;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  font-weight: 600;
 }
 
-.info { background: #2196f3; }
-.success { background: #4caf50; }
-.error { background: #f44336; }
-.warning { background: #ff9800; }
+@media (max-width: 576px) {
+  .snackbar {
+    bottom: 12px;
+    width: 95%;
+    min-width: unset;
+    border-radius: 8px;
+    padding: 16px;
+  }
+}
+
+.info { background: var(--primary-color); }
+.success { background: var(--success-color); }
+.error { background: var(--danger-color); }
+.warning { background: var(--warning-color); }
 
 .snackbar-enter-active,
 .snackbar-leave-active {

@@ -1,25 +1,24 @@
+import Drawer from 'primevue/drawer';
+import Button from 'primevue/button';
 
 export default {
   name: 'menu-online',
-  components: {},
-  props: [],
-  data () {
+  components: {
+    Drawer,
+    Button
+  },
+  data() {
     return {
-      test: "test"
+      mobileMenuVisible: false
     };
   },
-  computed: {
-
-  },
-  mounted () {
-
-  },
   methods: {
-  logout() {
-    localStorage.clear();
-    location.reload();
-  },
+    toggleMobileMenu() {
+      this.mobileMenuVisible = !this.mobileMenuVisible;
+    },
+    logout() {
+      localStorage.clear();
+      location.reload();
+    }
   }
 }
-
-

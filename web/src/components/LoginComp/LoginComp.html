@@ -6,12 +6,12 @@
     
     <div>
       <label>email</label>
-      <input type="text" required v-model="email"/>
+      <input type="text" required v-model="email" placeholder="email"/>
     </div>
 
     <div>
       <label>password</label>
-      <input :type="passFieldType" required v-model="password"/>
+      <input :type="passFieldType" required v-model="password" placeholder="password"/>
       <button @click="obfuscateToggle()" class="ml-auto pl-sm _eye" >
         <div>
           <img :src="`${eyeSvg}.svg`" width="25px" height="25px"/>

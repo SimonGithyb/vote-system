@@ -1,14 +1,24 @@
 
 nav {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
     margin-top: 20px;
     margin-bottom: 20px;
 }
 
 a {
-    color: lightblue;
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    cursor: pointer;
 }
 
+a:hover {
+    color: var(--primary-hover);
+}
 
 h5 {
-    color: black;
+    color: var(--body-text);
 }
