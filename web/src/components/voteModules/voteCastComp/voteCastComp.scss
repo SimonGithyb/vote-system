@@ -28,7 +28,39 @@
 }
 
 .category {
-    margin-bottom: 2rem;
+    margin: 1.5rem auto;
+    width: 100%;
+    max-width: 500px;
+
+    a {
+        display: block;
+        padding: 2.5rem 1.5rem;
+        background: linear-gradient(135deg, var(--card-bg) 0%, var(--body-bg) 100%);
+        border: 2px solid var(--card-border);
+        border-radius: 20px;
+        color: var(--body-text);
+        text-decoration: none;
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--card-shadow);
+        cursor: pointer;
+
+        &:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--primary-color);
+            background: var(--card-bg);
+            box-shadow: 0 25px 30px -10px rgba(0, 0, 0, 0.15);
+            color: var(--primary-color);
+        }
+
+        &:active {
+            transform: translateY(-2px) scale(1);
+        }
+    }
 }
 
 #selectVote {
