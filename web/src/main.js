@@ -1,3 +1,4 @@
+import "bootstrap/dist/css/bootstrap.min.css";
 import "primeicons/primeicons.css";
 import "./style.css";
 import "./flags.css";
@@ -25,6 +26,7 @@ createApp(App)
   .use(router)
   .use(vuetify)
   .use(PrimeVue, {
+    ripple: true,
     theme: {
         preset: Noir,
         options: {

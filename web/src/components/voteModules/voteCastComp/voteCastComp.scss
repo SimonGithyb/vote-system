@@ -1,35 +1,48 @@
 .vote-cast {
-    height: 85%;
-    color: white;
+    width: 100%;
+    color: var(--body-text);
+    padding: 1rem;
 }
 
-a {
-    margin: 50px 0 25px 32%;
-    padding: 75px;
-    background-color: #4d5d53;
-    color: white;
-    width: 35%;
+.vote-item-link {
+    margin: 1rem auto;
+    padding: 2rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    color: var(--body-text);
+    width: 100%;
+    max-width: 400px;
     display: flex;
     justify-content: center;
     align-items: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: var(--card-shadow);
+}
+
+.vote-item-link:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+    border-color: var(--primary-color);
 }
 
 .category {
-    height: 100%;
+    margin-bottom: 2rem;
 }
 
 #selectVote {
-    margin-top: 45px;
+    margin-top: 2rem;
 }
 
 header {
-    margin-top: 20px;
+    margin-bottom: 1.5rem;
 }
 
 input {
-    margin: 10px;
+    margin-bottom: 1rem;
 }
 
 #Questions {
-    margin: 20px;
+    margin: 2rem 0;
 }

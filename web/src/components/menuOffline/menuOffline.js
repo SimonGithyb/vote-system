@@ -1,22 +1,20 @@
+import Drawer from 'primevue/drawer';
+import Button from 'primevue/button';
 
 export default {
   name: 'menu-offline',
-  components: {},
-  props: [],
-  data () {
+  components: {
+    Drawer,
+    Button
+  },
+  data() {
     return {
-      test: "test"
+      mobileMenuVisible: false
     };
   },
-  computed: {
-
-  },
-  mounted () {
-
-  },
   methods: {
-
+    toggleMobileMenu() {
+      this.mobileMenuVisible = !this.mobileMenuVisible;
+    }
   }
 }
-
-

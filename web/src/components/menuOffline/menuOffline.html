@@ -1,10 +1,30 @@
-
-<section >
-  <nav>
-    <RouterLink to="/" class="routerLink">HOME</RouterLink >
-    <RouterLink to="/login" class="routerLink">LOGIN</RouterLink >
-    <RouterLink to="/signup" class="routerLink">SIGNUP</RouterLink >
-    <RouterLink to="/votes" class="routerLink">VOTES</RouterLink >
+<section class="menu-container">
+  <!-- Desktop Navigation -->
+  <nav class="desktop-nav">
+    <RouterLink to="/" class="routerLink">HOME</RouterLink>
+    <RouterLink to="/login" class="routerLink">LOGIN</RouterLink>
+    <RouterLink to="/signup" class="routerLink">SIGNUP</RouterLink>
+    <RouterLink to="/votes" class="routerLink">VOTES</RouterLink>
+    <ThemeSwitcher />
   </nav>
-</section>
 
+  <!-- Mobile Navigation -->
+  <div class="mobile-nav">
+    <div class="mobile-header">
+      <span class="logo-text">VOTE WORLD</span>
+      <div class="mobile-actions">
+        <ThemeSwitcher />
+        <Button icon="pi pi-bars" @click="toggleMobileMenu" text severity="secondary" />
+      </div>
+    </div>
+    
+    <Drawer v-model:visible="mobileMenuVisible" header="Menu" position="right">
+      <div class="mobile-menu-links">
+        <RouterLink to="/" @click="mobileMenuVisible = false">HOME</RouterLink>
+        <RouterLink to="/login" @click="mobileMenuVisible = false">LOGIN</RouterLink>
+        <RouterLink to="/signup" @click="mobileMenuVisible = false">SIGNUP</RouterLink>
+        <RouterLink to="/votes" @click="mobileMenuVisible = false">VOTES</RouterLink>
+      </div>
+    </Drawer>
+  </div>
+</section>

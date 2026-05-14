@@ -68,8 +68,8 @@
             </div>
           </div>
         </div>
-      <Button label="SAVE" @click="createNewVote" v-if="stage === 'creator'"/>
-      <Button label="SAVE" @click="saveEditVote" v-if="stage === 'edit'"/>
+      <Button label="SAVE" @click="createNewVote" v-if="stage === 'creator'" class="btn-submit"/>
+      <Button label="SAVE" @click="saveEditVote" v-if="stage === 'edit'" class="btn-submit"/>
       </form>
     </div>
 

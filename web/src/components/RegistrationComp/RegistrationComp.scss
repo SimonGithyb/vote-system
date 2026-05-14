@@ -1,57 +1,63 @@
 
 /* The message box is shown when the user clicks on the password field */
 #message {
-display:none;
-color: #fff;
-position: relative;
-padding: 20px;
-margin: 250px 0 0 50px;
-float:left;
+    display: none;
+    color: var(--body-text);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    box-shadow: var(--card-shadow);
 }
 
 #message p {
-padding: 10px 35px;
-font-size: 18px;
+    padding: 0.5rem 0;
+    font-size: 0.9rem;
+    margin: 0;
 }
 
 /* Add a green text color and a checkmark when the requirements are right */
 .valid {
-color: green;
+    color: var(--success-color);
 }
 
 .valid:before {
-position: relative;
-left: -35px;
-content: "✔";
+    margin-right: 10px;
+    content: "✔";
 }
 
 /* Add a red text color and an "x" when the requirements are wrong */
 .invalid {
-color: red;
+    color: var(--danger-color);
 }
 
 .invalid:before {
-position: relative;
-left: -35px;
-content: "✖";
+    margin-right: 10px;
+    content: "✖";
 }
 
 .emailError {
-    color:red;
+    color: var(--danger-color);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
 }
 
 .email {
-    color: black;
+    color: var(--body-text);
 }
 
 form {
-    float: left;
-    min-width: 400px;
-    max-width: 650px;
-    margin-left: 40%;
+    width: 100%;
+    max-width: 500px;
+    margin: 2rem auto;
+    float: none; /* Removed float for better centering */
 }
 
 .checkboxType {
-    width: 15%;
-    display: inline-block;
+    width: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-right: 1rem;
 }
