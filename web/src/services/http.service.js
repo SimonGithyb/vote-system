@@ -89,13 +89,7 @@ class httpService {
       })
       .catch(err => {
         console.error(err);
-
-        this.snackMessage =  err.response.data.errorDetails.message || err.message;
-        this.snackbar = true;
-        if (err.response.statusText === 'Unauthorized') {
-          localStorage.clear();
-          location.reload();
-        }
+        this.errorHandlingWithAuth(err);
       });
     }
 
@@ -276,14 +270,16 @@ class httpService {
 
     errorHandlingWithoutAuth(err) {
         const snackbar = useSnackbarStore();
-        snackbar.show(err?.data?.errorDetails?.message,  {type: 'error'});
+        const message = err?.data?.errorDetails?.message || err?.message || 'Connection error. Please try again later.';
+        snackbar.show(message, {type: 'error'});
     }
 
     errorHandlingWithAuth(err) {
         const snackbar = useSnackbarStore();
-        snackbar.show(err?.response?.data?.errorDetails?.message, {type: 'error'});
+        const message = err?.response?.data?.errorDetails?.message || err?.message || 'Connection error. Please try again later.';
+        snackbar.show(message, {type: 'error'});
 
-        if (err.response.statusText === 'Unauthorized') {
+        if (err?.response?.statusText === 'Unauthorized') {
           localStorage.clear();
           location.reload();
         }
