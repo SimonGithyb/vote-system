@@ -18,7 +18,7 @@ export class AuthService {
   constructor(
     @InjectModel(User.name) private UserModel: Model<User>,
     @InjectModel(RefreshToken.name) private RefreshTokenModel: Model<RefreshToken>,
-    @InjectModel(RefreshToken.name) private ResetTokenModel: Model<ResetToken>,
+    @InjectModel(ResetToken.name) private ResetTokenModel: Model<ResetToken>,
     private jwtService: JwtService,  
     private mailService: MailService,
   ) {}
@@ -75,9 +75,9 @@ export class AuthService {
     };
   }
 
-  async logout(token: string) {
+  async logout(userId: string) {
     try {
-      
+      await this.RefreshTokenModel.deleteOne({ userId });
     } catch(err) {
       Logger.error(err);
     }

@@ -5,7 +5,11 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
-  "dependenciesMeta": {"other-module-name": {"injected": true }},
+  "dependenciesMeta": {
+    "other-module-name": {
+      "injected": true
+    }
+  },
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -28,10 +32,12 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/mongoose": "^11.0.1",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/throttler": "^6.5.0",
     "@types/bcrypt": "^5.0.2",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "helmet": "^8.1.0",
     "mongoose": "^8.10.2",
     "nanoid": "^3.0.0",
     "nodemailer": "^6.10.0",

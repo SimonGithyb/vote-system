@@ -1,73 +1,80 @@
-import { Controller, Get, Post, Body, Req, UseGuards, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Req, UseGuards, Delete, Put, Param } from '@nestjs/common';
 
 import { VoteService } from './vote.service';
 import { VoteDto } from './dto/vote.dto';
 import { GiveVoteDto } from './dto/give-vote.dto';
-import { AutenticationGuard } from '../guards/authentication.guard';
+import { AuthenticationGuard } from '../guards/authentication.guard';
 
 @Controller('vote')
 export class VoteController {
   constructor(private readonly voteService: VoteService) {}
 
-  @UseGuards(AutenticationGuard)
+  @UseGuards(AuthenticationGuard)
   @Post()
-  async createNewVote(@Body() data: VoteDto) {
-    return this.voteService.createNewVote(data);
+  async createNewVote(@Body() data: VoteDto, @Req() req) {
+    return this.voteService.createNewVote(data, req.userId);
   }
 
-  @UseGuards(AutenticationGuard)
+  @UseGuards(AuthenticationGuard)
   @Get('getVote/:userId/:lastRecordId/:size')
-  async getVoteByUserId(@Req() req) {
-    return this.voteService.getVoteByUserId(req);
+  async getVoteByUserId(
+    @Param('userId') userId: string,
+    @Param('size') size: number,
+  ) {
+    return this.voteService.getVoteByUserId({ userId, size });
   }
 
-  @UseGuards(AutenticationGuard)
+  @UseGuards(AuthenticationGuard)
   @Get('getVoteSize/:userId')
-  async getVoteSizeByUserId(@Req() req) {
-    return this.voteService.getVoteSizeByUserId(req.params.userId);
+  async getVoteSizeByUserId(@Param('userId') userId: string) {
+    return this.voteService.getVoteSizeByUserId(userId);
   }
 
-  @UseGuards(AutenticationGuard)
+  @UseGuards(AuthenticationGuard)
   @Get('getVotes/:active')
-  async getVoteByActive(@Req() req) {
-    return this.voteService.getVoteByActive(req.params.active);
+  async getVoteByActive(@Param('active') active: string) {
+    return this.voteService.getVoteByActive(active);
   }
 
   @Get('getVotesNoSession/:active')
-  async getVoteByActiveNoSession(@Req() req) {
-    return this.voteService.getVoteByActiveNoSession(req.params.active);
+  async getVoteByActiveNoSession(@Param('active') active: string) {
+    return this.voteService.getVoteByActiveNoSession(active);
   }
 
-  @UseGuards(AutenticationGuard)
+  @UseGuards(AuthenticationGuard)
   @Get('getAllVote')
   async getAllVotes() {
     return this.voteService.getAllVotes();
   }
 
   @Get('getVoteCategory/:category')
-  async getVotesByCategory(@Req() req) {
-    return this.voteService.getVoteByUserId(req.userId);
+  async getVotesByCategory(@Param('category') category: string) {
+    return this.voteService.getVotesByCategory(category);
   }
 
-  @UseGuards(AutenticationGuard)
+  @UseGuards(AuthenticationGuard)
   @Delete(':id')
-  async deleteVote(@Req() req) {
-    return this.voteService.deleteVote(req.params.id);
+  async deleteVote(@Param('id') id: string, @Req() req) {
+    return this.voteService.deleteVote(id, req.userId);
   }
 
-  @UseGuards(AutenticationGuard)
+  @UseGuards(AuthenticationGuard)
   @Put(':id')
-  async updateVote(@Req() req, @Body() data: VoteDto) {
-    return this.voteService.updateVote(req.params.id, data);
+  async updateVote(@Param('id') id: string, @Body() data: VoteDto, @Req() req) {
+    return this.voteService.updateVote(id, data, req.userId);
   }
 
+  @UseGuards(AuthenticationGuard)
   @Post('saveVoteCast')
- async saveUserVote(@Body() data: any) {
-    return this.voteService.saveVoteCast(data);
+  async saveUserVote(@Body() data: GiveVoteDto, @Req() req) {
+    return this.voteService.saveVoteCast(data, req.userId);
   }
 
   @Get('voteResults/:voteId/:userId')
-   async voteResuls(@Req() req) {
-    return this.voteService.getVoteResult(req.params.voteId, req.params.userId);
+  async voteResuls(
+    @Param('voteId') voteId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.voteService.getVoteResult(voteId, userId);
   }
 }
