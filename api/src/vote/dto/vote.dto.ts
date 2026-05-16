@@ -1,4 +1,4 @@
-import { IsBoolean, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class VoteDto {
     @IsString()
@@ -11,11 +11,9 @@ export class VoteDto {
     questions: string;
 
     @IsString()
-    userId: string;
-
-    @IsString()
     expiryDate: string;
 
-    @IsString()
-    publicResults: boolean;
+    @IsOptional()
+    @IsBoolean()
+    publicResults?: boolean;
 }

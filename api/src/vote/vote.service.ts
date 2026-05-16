@@ -16,10 +16,16 @@ export class VoteService {
     @InjectModel(CastVote.name) private castVoteModel: Model<CastVote>,
   ) {}
 
-  async createNewVote(data: VoteDto) {
-    const { name, type, userId, expiryDate, publicResults, } = data;
+  async createNewVote(data: VoteDto, userId: string) {
+    const { name, type, expiryDate, publicResults, } = data;
     let { questions } = data;
-    questions = JSON.parse(questions);
+    if (typeof questions === 'string') {
+      try {
+        questions = JSON.parse(questions);
+      } catch (e) {
+        return { message: 'Invalid questions format', status: 400 };
+      }
+    }
 
     await this.voteModel.create({
       name,
@@ -82,14 +88,35 @@ export class VoteService {
     return await this.voteModel.find({ category });
   }
 
-  async deleteVote(id: any) {
+  async deleteVote(id: string, userId: string) {
+    const vote = await this.voteModel.findById(id);
+    if (!vote) {
+      return { message: 'Vote not found', status: 404 };
+    }
+    if (vote.userId !== userId) {
+      return { message: 'Unauthorized', status: 401 };
+    }
     return await this.voteModel.findByIdAndDelete(id);
   }
 
-  async updateVote(id: any, vote: VoteDto) {
-    const { name, type, userId, expiryDate } = vote;
+  async updateVote(id: string, vote: VoteDto, userId: string) {
+    const existingVote = await this.voteModel.findById(id);
+    if (!existingVote) {
+      return { message: 'Vote not found', status: 404 };
+    }
+    if (existingVote.userId !== userId) {
+      return { message: 'Unauthorized', status: 401 };
+    }
+
+    const { name, type, expiryDate } = vote;
     let { questions } = vote;
-    questions = JSON.parse(questions);
+    if (typeof questions === 'string') {
+      try {
+        questions = JSON.parse(questions);
+      } catch (e) {
+        return { message: 'Invalid questions format', status: 400 };
+      }
+    }
 
     return await this.voteModel.updateOne({_id: id}, {
       name,
@@ -100,8 +127,15 @@ export class VoteService {
     });
   }
 
-  async saveVoteCast(data: GiveVoteDto) {
-    const { userId, voteId, answers } = data;
+  async saveVoteCast(data: GiveVoteDto, userId: string) {
+    const { voteId, answers } = data;
+    
+    // Check if user already voted
+    const existingCast = await this.castVoteModel.findOne({ userId, voteId });
+    if (existingCast) {
+      return { message: 'You have already voted', status: 400 };
+    }
+
     return await this.castVoteModel.create({
       userId,
       voteId,
@@ -118,10 +152,13 @@ export class VoteService {
   async getVoteResult(voteId: string, userId: string) {
 
     const vote = await this.getVoteById(voteId);
+    if (!vote) {
+      return { message: 'Vote not found', status: 404 };
+    }
     if ( !this.checkAccessToVoteResults( vote, userId ) )
       return {
         message: 'You havent access to results for this vote',
-        status: 200,
+        status: 403,
       }
     const usersCasts = await this.getVoteCastByVoteid(voteId);
     const answers = this.preperAnswerForCount(vote.questions);
@@ -142,7 +179,7 @@ export class VoteService {
   checkAccessToVoteResults(vote: any, userId: string): boolean {
     if ( vote.publicResults )
       return true;
-    else if ( vote.userId == userId )
+    if ( userId && vote.userId === userId )
       return true;
     return false;
   }

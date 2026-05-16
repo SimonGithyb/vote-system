@@ -9,7 +9,7 @@ export class ResetToken extends Document {
     @Prop({ required: true, type: mongoose.Types.ObjectId })
     userId: mongoose.Types.ObjectId;
 
-    @Prop({ required: true })
+    @Prop({ required: true, index: { expires: '0' } })
     expiryDate: Date;
 }
 

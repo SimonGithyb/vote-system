@@ -8,9 +8,8 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 
-import { AutenticationGuard } from '../guards/authentication.guard';
+import { AuthenticationGuard } from '../guards/authentication.guard';
 import { AuthorizationGuard } from '../guards/authorization.guard';
-// import { Roles } from 'src/decorators/role.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -26,20 +25,19 @@ export class AuthController {
     return this.authService.login(credentials);
   }
 
-  @UseGuards(AutenticationGuard)
+  @UseGuards(AuthenticationGuard)
   @Get('logout')
   async logout(@Req() req) {
-    return this.authService.logout(req.headers.token);
+    return this.authService.logout(req.userId);
   }
 
-  @UseGuards(AutenticationGuard)
+  @UseGuards(AuthenticationGuard)
   @Post('refresh')
   async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
     return this.authService.refreshToken(refreshTokenDto.token);
   }
 
-  // @Roles(['rola'])
-  @UseGuards(AutenticationGuard ,AuthorizationGuard)
+  @UseGuards(AuthenticationGuard ,AuthorizationGuard)
   @Put('change-password')
   async changePassowrd(
     @Body() changePasswordDto: ChangePasswordDto,

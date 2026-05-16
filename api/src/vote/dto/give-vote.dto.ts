@@ -4,9 +4,6 @@ export class GiveVoteDto {
     @IsString()
     voteId: string;
 
-    @IsString()
-    userId: string;
-
     @IsObject()
     answers: object;
 }
