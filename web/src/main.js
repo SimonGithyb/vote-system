@@ -6,8 +6,6 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia'
 import App from './App.vue';
 import router from './router';
-import vuetify from './plugins/vuetify';
-import { loadFonts } from './plugins/webfontloader';
 import PrimeVue from "primevue/config";
 import ConfirmationService from 'primevue/confirmationservice'
 import DialogService from 'primevue/dialogservice'
@@ -18,13 +16,11 @@ import AppState from './plugins/appState.js';
 import ThemeSwitcher from './components/ThemeSwitcher.vue';
 import Noir from './presets/Noir.js';
 
-loadFonts()
 const pinia = createPinia()
 
 createApp(App)
   .use(pinia)
   .use(router)
-  .use(vuetify)
   .use(PrimeVue, {
     ripple: true,
     theme: {

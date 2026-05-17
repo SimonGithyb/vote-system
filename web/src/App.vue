@@ -1,11 +1,11 @@
 <template>
   <div id="app">
     <header>
-      <div v-if="session">
-        <menuOnline />
+      <div v-if="auth.session">
+        <MenuOnline />
       </div>
-      <div v-if="!session">
-        <menuOffline />
+      <div v-else>
+        <MenuOffline />
       </div>
     </header>
      
@@ -16,41 +16,36 @@
     <Snackbar />
 
     <footer>
-      &#169; 2025 Poland, All rights reserved. <strong>APPLICATION VERSION: ALFA 0.0.1</strong>
+      &#169; 2025 Poland, All rights reserved. <strong>APPLICATION VERSION: ALFA 0.0.2</strong>
     </footer>
   </div>
 </template>
-<script>
 
-import menuOffline from './components/menuOffline/menuOffline.vue';
-import menuOnline from './components/menuOnline/menuOnline.vue';
+<script>
+import MenuOffline from './components/MenuOffline/MenuOffline.vue';
+import MenuOnline from './components/MenuOnline/MenuOnline.vue';
 import Snackbar from './components/Snackbar.vue';
+import { useAuthStore } from '@/stores/auth';
 import { useSnackbarStore } from '@/stores/snackbar';
 
 export default {
   name: 'App',
-
   components: {
-    menuOffline,
-    menuOnline,
+    MenuOffline,
+    MenuOnline,
     Snackbar,
   },
-  data() {
-    return {
-      session: false,
-    }
+  setup() {
+    const auth = useAuthStore();
+    return { auth };
   },
-  methods: {
-  },
-  beforeMount() {
-    this.session = localStorage.session;
-    if (this.session) {
+  mounted() {
+    if (this.auth.session) {
       const snackbar = useSnackbarStore();
-      snackbar.show("you are logged in", {type: 'success'});
+      snackbar.show("Welcome back!", {type: 'success'});
     }
   }
 }
-
 </script>
 
 <style>
@@ -73,5 +68,15 @@ a:hover {
 .routerLink {
     text-decoration: none;
     color: var(--primary-color);
+}
+
+.main-container {
+  min-height: 70vh;
+}
+
+footer {
+  margin-top: 2rem;
+  padding: 1rem;
+  border-top: 1px solid #eee;
 }
 </style>

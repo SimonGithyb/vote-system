@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -23,7 +23,7 @@ export class VoteService {
       try {
         questions = JSON.parse(questions);
       } catch (e) {
-        return { message: 'Invalid questions format', status: 400 };
+        throw new BadRequestException('Invalid questions format');
       }
     }
 
@@ -38,24 +38,25 @@ export class VoteService {
 
     return {
       message: 'Your vote is created!',
-      status: 200,
     };
   }
 
   async getVoteById(voteId: string) {
-    return await this.voteModel.findById(voteId);
+    const vote = await this.voteModel.findById(voteId);
+    if (!vote) {
+      throw new NotFoundException('Vote not found');
+    }
+    return vote;
   }
 
   async getVoteByUserId(data: any) {
     const { userId, size } = data; 
 
-    return await this.voteModel.find({ userId}).limit(size);
+    return await this.voteModel.find({ userId }).limit(size);
   }
 
   async getVoteSizeByUserId(userId: string) {
-    const data = await this.voteModel.find({ userId });
-
-    return data.length;
+    return await this.voteModel.countDocuments({ userId });
   }
 
   async getVoteByActive(active: string) {
@@ -66,11 +67,12 @@ export class VoteService {
       return await this.voteModel.find({ expiryDate: { $gt: toDay } });
     } else if ( active === 'false' ) {
       return await this.voteModel.find({ expiryDate: { $lt: toDay } });
-    } else {}
+    }
+    return [];
   }
 
   async getVoteByActiveNoSession(active: string) {
-       const toDay = Date.now();
+    const toDay = Date.now();
     if ( active === 'all' ) {
       return await this.voteModel.find({ type: 'public' });
     } else if ( active === 'true' ) {
@@ -78,6 +80,7 @@ export class VoteService {
     }  else if ( active === 'false' ) {
       return await this.voteModel.find({ expiryDate: { $lt: toDay }, type: 'public' });
     }
+    return [];
   }
 
   async getAllVotes() {
@@ -91,10 +94,10 @@ export class VoteService {
   async deleteVote(id: string, userId: string) {
     const vote = await this.voteModel.findById(id);
     if (!vote) {
-      return { message: 'Vote not found', status: 404 };
+      throw new NotFoundException('Vote not found');
     }
-    if (vote.userId !== userId) {
-      return { message: 'Unauthorized', status: 401 };
+    if (vote.userId.toString() !== userId) {
+      throw new UnauthorizedException('Unauthorized');
     }
     return await this.voteModel.findByIdAndDelete(id);
   }
@@ -102,10 +105,10 @@ export class VoteService {
   async updateVote(id: string, vote: VoteDto, userId: string) {
     const existingVote = await this.voteModel.findById(id);
     if (!existingVote) {
-      return { message: 'Vote not found', status: 404 };
+      throw new NotFoundException('Vote not found');
     }
-    if (existingVote.userId !== userId) {
-      return { message: 'Unauthorized', status: 401 };
+    if (existingVote.userId.toString() !== userId) {
+      throw new UnauthorizedException('Unauthorized');
     }
 
     const { name, type, expiryDate } = vote;
@@ -114,7 +117,7 @@ export class VoteService {
       try {
         questions = JSON.parse(questions);
       } catch (e) {
-        return { message: 'Invalid questions format', status: 400 };
+        throw new BadRequestException('Invalid questions format');
       }
     }
 
@@ -133,7 +136,7 @@ export class VoteService {
     // Check if user already voted
     const existingCast = await this.castVoteModel.findOne({ userId, voteId });
     if (existingCast) {
-      return { message: 'You have already voted', status: 400 };
+      throw new BadRequestException('You have already voted');
     }
 
     return await this.castVoteModel.create({
@@ -146,40 +149,34 @@ export class VoteService {
 
   async getVoteCastByVoteid(voteId: string) {
     return await this.castVoteModel.find({ voteId });
-
   }
   
   async getVoteResult(voteId: string, userId: string) {
-
-    const vote = await this.getVoteById(voteId);
+    const vote = await this.voteModel.findById(voteId);
     if (!vote) {
-      return { message: 'Vote not found', status: 404 };
+      throw new NotFoundException('Vote not found');
     }
-    if ( !this.checkAccessToVoteResults( vote, userId ) )
-      return {
-        message: 'You havent access to results for this vote',
-        status: 403,
-      }
+
+    if ( !this.checkAccessToVoteResults( vote, userId ) ) {
+      throw new ForbiddenException('You have no access to results for this vote');
+    }
+
     const usersCasts = await this.getVoteCastByVoteid(voteId);
     const answers = this.preperAnswerForCount(vote.questions);
 
     const counted = this.countAnswers(usersCasts, answers);
 
     return {
-      data: {
-        voteName: vote.name,
-        voteId: vote._id,
-        results: counted
-      },
-      status: 200,
-      message: `all results for vote ${vote.name}`
-    }
+      voteName: vote.name,
+      voteId: vote._id,
+      results: counted
+    };
   }
 
   checkAccessToVoteResults(vote: any, userId: string): boolean {
     if ( vote.publicResults )
       return true;
-    if ( userId && vote.userId === userId )
+    if ( userId && vote.userId.toString() === userId )
       return true;
     return false;
   }

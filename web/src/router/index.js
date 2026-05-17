@@ -1,14 +1,14 @@
-import { createRouter, createMemoryHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 
 import MainComp from '@/components/MainComp/MainComp.vue';
 import LoginComp from '@/components/LoginComp/LoginComp.vue';
 import RegistrationComp from '@/components/RegistrationComp/RegistrationComp.vue';
-import voteCastComp from '@/components/voteModules/voteCastComp/voteCastComp.vue';
-import voteCreatorComp from '@/components/voteModules/voteCreatorComp/voteCreatorComp.vue';
+import VoteCastComp from '@/components/voteModules/voteCastComp/VoteCastComp.vue';
+import VoteCreatorComp from '@/components/voteModules/voteCreatorComp/VoteCreatorComp.vue';
 
 
 const router = createRouter({
-  history: createMemoryHistory(),
+  history: createWebHistory(),
   routes:[
     {
       path: '/',
@@ -27,13 +27,13 @@ const router = createRouter({
     },
     {
       path: '/votes',
-      name: 'voteCastComp',
-      component: voteCastComp,
+      name: 'VoteCastComp',
+      component: VoteCastComp,
     },
     {
       path: '/createVotes',
-      name: 'voteCreatorComp',
-      component: voteCreatorComp,
+      name: 'VoteCreatorComp',
+      component: VoteCreatorComp,
     }
 ],
 });
