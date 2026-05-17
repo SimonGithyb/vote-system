@@ -1,23 +1,25 @@
 import * as nodemailer from 'nodemailer';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MailService {
     private transporter: nodemailer.Transporter;
 
-    constructor() {
+    constructor(private configService: ConfigService) {
         this.transporter = nodemailer.createTransport({
-            host: 'smtp.ethereal.mail',
-            port: 587,
+            host: this.configService.get('mail.host'),
+            port: this.configService.get('mail.port'),
             auth: {
-                user: 'lilla.terry55@ethereal.email',
-                pass: 'yQQSg25MR1QwugbNnN',
+                user: this.configService.get('mail.user'),
+                pass: this.configService.get('mail.pass'),
             },
         });
     }
     
     async sendPasswordResetEmail(to: string, token: string) {
-        const resetLink = `http://yourapp.com/reset-password?token=${token}`;        
+        const frontendUrl = this.configService.get('FRONTEND_URL') || 'http://localhost:8080';
+        const resetLink = `${frontendUrl}/reset-password?token=${token}`;        
         const mailOptions = {
             from: 'Auth-backend service',
             to: to,

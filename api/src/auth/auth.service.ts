@@ -11,7 +11,7 @@ import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshToken } from './schemas/refresh-token.schema';
 import { ResetToken } from './schemas/reset-token.schema';
-import { MailService } from 'src/services/mail.service';
+import { MailService } from '../services/mail.service';
 
 @Injectable()
 export class AuthService {
