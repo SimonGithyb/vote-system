@@ -59,7 +59,6 @@
 
 <script>
 import httpService from '@/services/http.service';
-import { useSnackbarStore } from '@/stores/snackbar';
 
 export default {
     name: 'RegistrationComp',

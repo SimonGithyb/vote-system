@@ -78,7 +78,7 @@
       <h1> On this page on future you can see all vote what you create and you can it modyfikated or delete </h1>
       <Paginator :rows="paginatorCurrentRow" :totalRecords="paginatorTotalRecords" :rowsPerPageOptions="paginatorRowsPerPageOptions"></Paginator>
 
-      <table>
+      <table class="stage-table">
         <tbody>
           <tr>
             <th>NAME</th>
@@ -90,14 +90,14 @@
           <tr v-for="(vote, index) in votes" :key="vote._id">
             <td>{{vote.name}}</td>
             <td>
-            <img src="edit_icon.svg" alt="edit" title="edit" @click="editVote(vote, index)"/>
+            <img src="edit_icon.svg" alt="edit" title="edit" @click="editVote(vote, index)" class="action-icon" width="24" height="24"/>
           </td>
             <td>
-            <img src="delete_icon.svg" alt="delete" title="delete" @click="deleteVote(vote._id, index)"/>
+            <img src="delete_icon.svg" alt="delete" title="delete" @click="deleteVote(vote._id, index)" class="action-icon" width="24" height="24"/>
           </td>
           <td :style="{'background-color': vote.active ? 'green': 'red'}"></td>
           <td>
-            <img src="look-into-telescope-see-watch-view-svgrepo-com.svg" alt="look results" title="look results" @click="openResultsVote(vote)"/>
+            <img src="look-into-telescope-see-watch-view-svgrepo-com.svg" alt="look results" title="look results" @click="openResultsVote(vote)" class="action-icon" width="24" height="24"/>
           </td>
           </tr>
         </tbody>
@@ -111,10 +111,10 @@
         <div v-if="questions && questions.length > 0">
           <p> Question: {{ currentQuestionIndex + 1 }} of  {{ questions.length }} </p>
           <button @click="previousQuestion">
-            <img src="arrow-left-svgrepo-com.svg" />
+            <img src="arrow-left-svgrepo-com.svg" width="24" height="24" style="width: 24px; height: 24px;"/>
           </button>
           <button @click="nextQuestion">
-            <img src="arrow-right-svgrepo-com.svg"/>
+            <img src="arrow-right-svgrepo-com.svg" width="24" height="24" style="width: 24px; height: 24px;"/>
           </button>
         </div>
         <h4 v-if="questions && questions[currentQuestionIndex]"> {{ questions[currentQuestionIndex].name }} </h4>
@@ -140,6 +140,7 @@ import InputText from "primevue/inputtext";
 import Paginator from 'primevue/paginator';
 
 import httpService from '@/services/http.service';
+import socketService from '@/services/socket.service';
 import { useSnackbarStore } from '@/stores/snackbar';
 import { useAuthStore } from '@/stores/auth';
 
@@ -150,6 +151,16 @@ export default {
     Button,
     InputText,
     Paginator,
+  },
+  mounted() {
+    socketService.on('voteUpdated', (data) => {
+      if (this.resultsDialog && this.voteResults?.voteId === data.voteId) {
+        this.getResultsVote(data.voteId);
+      }
+    });
+  },
+  unmounted() {
+    socketService.off('voteUpdated');
   },
   data () {
     return {
@@ -230,11 +241,15 @@ export default {
     },
     async createNewVote() {
       try {
+        const formattedQuestions = this.questions.map(q => ({
+          name: q.name,
+          answers: q.answers.filter(a => a && a.trim() !== '') // Usuwamy puste odpowiedzi
+        }));
+
         await httpService.post('/vote', {
           voteName: this.voteName,
           voteType: this.voteType,
-          questions: this.questions,
-          userId: this.userId,
+          questions: formattedQuestions,
           voteExpiry: this.voteExpiry,
           publicResults: this.publicResults,
         });
@@ -307,11 +322,15 @@ export default {
     },
     async saveEditVote() {
       try {
+        const formattedQuestions = this.questions.map(q => ({
+          name: q.name,
+          answers: q.answers.filter(a => a && a.trim() !== '')
+        }));
+
         await httpService.put(`/vote/${this.voteId}`, {
           voteName: this.voteName,
           voteType: this.voteType,
-          questions: this.questions,
-          userId: this.userId,
+          questions: formattedQuestions,
           voteExpiry: this.voteExpiry,
           publicResults: this.publicResults,
         });
@@ -393,6 +412,38 @@ a {
 
 a:hover {
     color: var(--primary-hover);
+}
+
+.stage-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.stage-table th, .stage-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.stage-table th {
+    background-color: rgba(0,0,0,0.02);
+    font-weight: 600;
+}
+
+.stage-table img.action-icon {
+    width: 24px !important;
+    height: 24px !important;
+    max-width: 24px !important;
+    max-height: 24px !important;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.stage-table img.action-icon:hover {
+    transform: scale(1.1);
 }
 
 h5 {

@@ -1,10 +1,12 @@
 <template>
 <section class="vote-cast">
 
-  <div v-if="stage == 'first'" class="category" v-for="(cat, index) in category">
-      <a :title="cat.title" @click="changeStage(cat.name, index)">
-        {{ cat.signature }}
-      </a>
+  <div v-if="stage == 'first'">
+    <div v-for="(cat, index) in category" :key="cat.name" class="category">
+        <a :title="cat.title" @click="changeStage(cat.name, index)">
+          {{ cat.signature }}
+        </a>
+    </div>
   </div>
 
   <div v-if="stage != 'first'" id="selectVote">
@@ -15,75 +17,98 @@
       </header>
       <main>
 
-        <table>
+        <table class="stage-table">
           <tbody>
             <tr>
               <th>NAME</th>
-              <th>GIVE VOTE!</th>
-              <th>RESULTS IS PUBLIC?</th>
+              <th>VOTE</th>
+              <th>STATUS</th>
               <th>RESULTS</th>
             </tr>
-            <tr v-for="(vote, index) in votes">
+            <tr v-for="(vote, index) in votes" :key="vote._id">
               <td>{{vote.name}}</td>
               <td>
-              <img src="vote-svgrepo-com.svg" alt="give vote" title="Give vote!" @click="openVote(index)"/>
-            </td>
-            <td :style="{'background-color': vote.active ? 'green': 'red'}"></td>
-            <td v-if="vote.publicResults || vote.userId === userId">
-              <img src="look-into-telescope-see-watch-view-svgrepo-com.svg" alt="look results" title="look results" @click="openResultsVote(vote)"/>
-            </td>
-            <td v-else>
-              <img src="no-access-svgrepo-com.svg" alt="you havent access" title="you havent access" @click="onAcess(vote.name)"/>
-            </td>
+                <img src="vote-svgrepo-com.svg" alt="give vote" title="Give vote!" @click="openVote(index)" class="action-icon" width="24" height="24" style="width: 24px; height: 24px;"/>
+              </td>
+              <td>
+                <span :style="{
+                  'color': 'white',
+                  'background-color': vote.active ? 'var(--success-color)' : 'var(--danger-color)',
+                  'padding': '4px 8px',
+                  'border-radius': '12px',
+                  'font-size': '0.75rem',
+                  'font-weight': 'bold'
+                }">
+                  {{ vote.active ? 'ACTIVE' : 'ENDED' }}
+                </span>
+              </td>
+              <td>
+                <div v-if="vote.publicResults || vote.userId === userId">
+                  <img src="look-into-telescope-see-watch-view-svgrepo-com.svg" alt="look results" title="Look results" @click="openResultsVote(vote)" class="action-icon" width="24" height="24" style="width: 24px; height: 24px;"/>
+                </div>
+                <div v-else>
+                  <img src="no-access-svgrepo-com.svg" alt="no access" title="Results are private" @click="onAcess(vote.name)" class="action-icon" width="24" height="24" style="width: 24px; height: 24px; opacity: 0.5;"/>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
 
-        <Dialog v-model:visible="isDialog" modal header="GIVE YOUR OPINION" :style="{ width: '25rem' }"> 
-          <h2 v-if="votes[selectVoteIndex]"> {{ votes[selectVoteIndex].name }} </h2>
+        <Dialog v-model:visible="isDialog" modal header="GIVE YOUR OPINION" :style="{ width: '30rem' }"> 
+          <h2 v-if="votes[selectVoteIndex]" style="text-align: center;"> {{ votes[selectVoteIndex].name }} </h2>
           <div id="questions" v-if="votes[selectVoteIndex]">
-            <div>
-              <p> Question: {{ currentQuestionIndex + 1 }} of  {{ allQuestionsIndexs }} </p>
-              <button @click="previousQuestion">
-                <img src="arrow-left-svgrepo-com.svg" />
+            <div class="navigation-controls">
+              <button @click="previousQuestion" class="nav-btn" :disabled="currentQuestionIndex === 0">
+                <img src="arrow-left-svgrepo-com.svg" width="20" height="20" style="width: 20px; height: 20px;"/>
               </button>
-              <button @click="nextQuestion">
-                <img src="arrow-right-svgrepo-com.svg"/>
+              <p class="question-progress"> Question: {{ currentQuestionIndex + 1 }} of {{ allQuestionsIndexs }} </p>
+              <button @click="nextQuestion" class="nav-btn" :disabled="currentQuestionIndex === allQuestionsIndexs - 1">
+                <img src="arrow-right-svgrepo-com.svg" width="20" height="20" style="width: 20px; height: 20px;"/>
               </button>
             </div>
-            <h4> {{ votes[selectVoteIndex].questions[currentQuestionIndex].name }} </h4>
-            <div v-for="q in votes[selectVoteIndex].questions[currentQuestionIndex].answers" :key="q">
-              <input type="radio" v-model="answer" class="radioType" @change="saveAnswer" :value="q">
-              {{q}}
+            
+            <h4 style="margin: 1rem 0;"> {{ votes[selectVoteIndex].questions[currentQuestionIndex].name }} </h4>
+            
+            <div class="answers-list">
+              <label v-for="q in votes[selectVoteIndex].questions[currentQuestionIndex].answers" :key="q" class="answer-option">
+                <input type="radio" v-model="answer" class="radioType" @change="saveAnswer" :value="q" style="width: auto; margin: 0;">
+                <span>{{q}}</span>
+              </label>
             </div>
           </div>
-          <div class="flex justify-end gap-2">
-            <Button label="SAVE AND CLOUSE" @click="saveVoteResult" class="btn-submit"></Button>
-            <Button label="BACK" @click="isDialog = false"></Button>
+          <div class="flex justify-center gap-4" style="margin-top: 2rem;">
+            <Button label="SAVE AND CLOSE" @click="saveVoteResult" class="btn-submit" style="margin: 0; width: auto;"></Button>
+            <Button label="BACK" @click="isDialog = false" class="p-button-secondary"></Button>
           </div>
         </Dialog>
 
-        <Dialog v-model:visible="resultsDialog" modal header="VOTE RESULTS" :style="{ width: '25rem' }"> 
-          <h2> {{ voteName }} </h2>
+        <Dialog v-model:visible="resultsDialog" modal header="VOTE RESULTS" :style="{ width: '30rem' }"> 
+          <h2 style="text-align: center;"> {{ voteName }} </h2>
           <div id="questions">
-            <div>
-              <p> Question: {{ currentQuestionIndex + 1 }} of  {{ allQuestionsIndexs }} </p>
-              <button @click="previousQuestion">
-                <img src="arrow-left-svgrepo-com.svg" />
+            <div class="navigation-controls">
+              <button @click="previousQuestion" class="nav-btn" :disabled="currentQuestionIndex === 0">
+                <img src="arrow-left-svgrepo-com.svg" width="20" height="20" style="width: 20px; height: 20px;"/>
               </button>
-              <button @click="nextQuestion">
-                <img src="arrow-right-svgrepo-com.svg"/>
+              <p class="question-progress"> Question: {{ currentQuestionIndex + 1 }} of {{ allQuestionsIndexs }} </p>
+              <button @click="nextQuestion" class="nav-btn" :disabled="currentQuestionIndex === allQuestionsIndexs - 1">
+                <img src="arrow-right-svgrepo-com.svg" width="20" height="20" style="width: 20px; height: 20px;"/>
               </button>
             </div>
-            <h4 v-if="questions[currentQuestionIndex]"> {{ questions[currentQuestionIndex].name }} </h4>
-            <div v-for="results in voteResults?.results" :key="results.answerName">
-              <div v-if="questions[currentQuestionIndex] && results.questionName == questions[currentQuestionIndex].name">
-                {{ results.answerName }} all votes: {{ results.quantity }}
+
+            <h4 v-if="questions[currentQuestionIndex]" style="margin: 1rem 0;"> {{ questions[currentQuestionIndex].name }} </h4>
+            
+            <div class="answers-list" style="align-items: stretch; width: 100%;">
+              <div v-for="results in voteResults?.results" :key="results.answerName" style="width: 100%;">
+                <div v-if="questions[currentQuestionIndex] && results.questionName == questions[currentQuestionIndex].name" 
+                     style="display: flex; justify-content: space-between; padding: 0.5rem; border-bottom: 1px solid var(--card-border);">
+                  <span style="font-weight: 500;">{{ results.answerName }}</span>
+                  <span class="badge">{{ results.quantity }} votes</span>
+                </div>
               </div>
             </div>
           </div>
-          <div class="flex justify-end gap-2">
-            <Button label="BACK" @click="resultsDialog = false"></Button>
+          <div class="flex justify-center" style="margin-top: 2rem;">
+            <Button label="BACK" @click="resultsDialog = false" class="p-button-secondary"></Button>
           </div>
         </Dialog>
 
@@ -96,10 +121,10 @@
 <script>
 import Dialog from 'primevue/dialog';
 import Button from "primevue/button";
-import InputText from "primevue/inputtext";
 import Paginator from 'primevue/paginator';
 
 import httpService from '@/services/http.service';
+import socketService from '@/services/socket.service';
 import { useSnackbarStore } from '@/stores/snackbar';
 import { useAuthStore } from '@/stores/auth';
 
@@ -108,8 +133,23 @@ export default {
   components: {
     Dialog,
     Button,
-    InputText,
     Paginator,
+  },
+  mounted() {
+    socketService.on('voteUpdated', (data) => {
+      if (this.resultsDialog && this.voteResults?.voteId === data.voteId) {
+        this.getResultsVote(data.voteId, this.userId);
+      }
+    });
+    socketService.on('voteCreated', () => {
+      if (this.stage !== 'first') {
+        this.checkSessionAndInitData();
+      }
+    });
+  },
+  unmounted() {
+    socketService.off('voteUpdated');
+    socketService.off('voteCreated');
   },
   data () {
     return {
@@ -232,7 +272,6 @@ export default {
         await httpService.post('/vote/saveVoteCast', {
           answers: this.answers,
           voteId: this.votes[this.selectVoteIndex]._id,
-          userId: this.userId,
         });
         this.isDialog = false;
       } catch (error) {
@@ -341,7 +380,104 @@ input {
     margin-bottom: 1rem;
 }
 
-#Questions {
-    margin: 2rem 0;
+#questions {
+    margin: 1.5rem 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.navigation-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.nav-btn {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        img {
+            filter: brightness(0) invert(1);
+        }
+    }
+
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+}
+
+.question-progress {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--footer-text);
+    margin: 0;
+}
+
+.answers-list {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin: 1rem 0;
+    width: fit-content;
+}
+
+.answer-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    font-size: 1.1rem;
+}
+
+.stage-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background: var(--card-bg);
+}
+
+.stage-table th, .stage-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.stage-table th {
+    background-color: rgba(0,0,0,0.02);
+    font-weight: 600;
+}
+
+.action-icon {
+    width: 24px !important;
+    height: 24px !important;
+    max-width: 24px !important;
+    max-height: 24px !important;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.action-icon:hover {
+    transform: scale(1.1);
 }
 </style>

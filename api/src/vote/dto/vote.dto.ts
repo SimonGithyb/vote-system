@@ -1,17 +1,21 @@
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, IsArray, IsNotEmpty } from 'class-validator';
 
 export class VoteDto {
     @IsString()
-    name: string;
+    @IsNotEmpty()
+    voteName: string;
 
     @IsString()
-    type: string;
+    @IsNotEmpty()
+    voteType: string;
+
+    @IsArray()
+    @IsNotEmpty()
+    questions: any[];
 
     @IsString()
-    questions: string;
-
-    @IsString()
-    expiryDate: string;
+    @IsNotEmpty()
+    voteExpiry: string;
 
     @IsOptional()
     @IsBoolean()

@@ -8,33 +8,32 @@ import { Vote } from './schemas/vote.schema';
 import { CastVote } from './schemas/cast-vote';
 import { count } from 'console';
 
+import { VoteGateway } from './vote.gateway';
+
 @Injectable()
 export class VoteService {
 
   constructor(
     @InjectModel(Vote.name) private voteModel: Model<Vote>,
     @InjectModel(CastVote.name) private castVoteModel: Model<CastVote>,
+    private readonly voteGateway: VoteGateway,
   ) {}
 
   async createNewVote(data: VoteDto, userId: string) {
-    const { name, type, expiryDate, publicResults, } = data;
-    let { questions } = data;
-    if (typeof questions === 'string') {
-      try {
-        questions = JSON.parse(questions);
-      } catch (e) {
-        throw new BadRequestException('Invalid questions format');
-      }
-    }
+    const { voteName, voteType, voteExpiry, publicResults, questions } = data;
+    
+    const expiryDate = new Date(voteExpiry).getTime();
 
-    await this.voteModel.create({
-      name,
-      type,
+    const newVote = await this.voteModel.create({
+      name: voteName,
+      type: voteType,
       questions,
       userId,
       expiryDate,
-      publicResults,
+      publicResults: publicResults ?? true,
     });
+
+    this.voteGateway.server.emit('voteCreated', newVote);
 
     return {
       message: 'Your vote is created!',
@@ -102,7 +101,7 @@ export class VoteService {
     return await this.voteModel.findByIdAndDelete(id);
   }
 
-  async updateVote(id: string, vote: VoteDto, userId: string) {
+  async updateVote(id: string, data: VoteDto, userId: string) {
     const existingVote = await this.voteModel.findById(id);
     if (!existingVote) {
       throw new NotFoundException('Vote not found');
@@ -111,22 +110,16 @@ export class VoteService {
       throw new UnauthorizedException('Unauthorized');
     }
 
-    const { name, type, expiryDate } = vote;
-    let { questions } = vote;
-    if (typeof questions === 'string') {
-      try {
-        questions = JSON.parse(questions);
-      } catch (e) {
-        throw new BadRequestException('Invalid questions format');
-      }
-    }
+    const { voteName, voteType, voteExpiry, questions, publicResults } = data;
+    const expiryDate = new Date(voteExpiry).getTime();
 
     return await this.voteModel.updateOne({_id: id}, {
-      name,
-      type,
+      name: voteName,
+      type: voteType,
       questions,
       userId,
       expiryDate,
+      publicResults: publicResults ?? existingVote.publicResults
     });
   }
 
@@ -139,12 +132,16 @@ export class VoteService {
       throw new BadRequestException('You have already voted');
     }
 
-    return await this.castVoteModel.create({
+    const cast = await this.castVoteModel.create({
       userId,
       voteId,
       answers,
       date: new Date().getTime(),
     });
+
+    this.voteGateway.emitVoteUpdate(voteId);
+
+    return cast;
   }
 
   async getVoteCastByVoteid(voteId: string) {
@@ -162,9 +159,9 @@ export class VoteService {
     }
 
     const usersCasts = await this.getVoteCastByVoteid(voteId);
-    const answers = this.preperAnswerForCount(vote.questions);
+    const answers = this.prepareAnswerForCount(vote.questions);
 
-    const counted = this.countAnswers(usersCasts, answers);
+    const counted = this.countAnswers(usersCasts, answers, vote.questions);
 
     return {
       voteName: vote.name,
@@ -176,12 +173,12 @@ export class VoteService {
   checkAccessToVoteResults(vote: any, userId: string): boolean {
     if ( vote.publicResults )
       return true;
-    if ( userId && vote.userId.toString() === userId )
+    if ( userId && userId !== 'null' && userId !== 'undefined' && vote.userId.toString() === userId )
       return true;
     return false;
   }
 
-  preperAnswerForCount(questions) {
+  prepareAnswerForCount(questions) {
     const data = []
     questions.forEach(question => {
       question?.answers.forEach(answer => {
@@ -195,14 +192,16 @@ export class VoteService {
     return data;
   }
 
-  countAnswers(allUsersAnswers, allQuestions) {
+  countAnswers(allUsersAnswers, allQuestions, originalQuestions) {
     allUsersAnswers.forEach(userCast => {
-      userCast.answers.forEach(answer => {
-        allQuestions.forEach(el => {
-        if ( answer === el.answerName) {
-          el.quantity++;
+      userCast.answers.forEach((answer, index) => {
+        const questionName = originalQuestions[index]?.name;
+        const questionMatch = allQuestions.find(el => 
+          el.answerName === answer && el.questionName === questionName
+        );
+        if (questionMatch) {
+          questionMatch.quantity++;
         }
-      })
       })
     });
     return allQuestions;

@@ -25,9 +25,10 @@ export class VoteController {
   @ApiOperation({ summary: 'Get votes by user ID' })
   async getVoteByUserId(
     @Param('userId') userId: string,
+    @Param('lastRecordId') lastRecordId: string,
     @Param('size') size: number,
   ) {
-    return this.voteService.getVoteByUserId({ userId, size });
+    return this.voteService.getVoteByUserId({ userId, lastRecordId, size });
   }
 
   @ApiBearerAuth()
