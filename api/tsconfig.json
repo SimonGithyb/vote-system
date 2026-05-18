@@ -2,16 +2,21 @@
   "compilerOptions": {
     "ignoreDeprecations": "5.0",
     "module": "commonjs",
+    "moduleResolution": "node",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2021",
+    "target": "ES2022",
     "sourceMap": true,
     "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true,
+    "baseUrl": "./",
+    "paths": {
+      "src/*": ["src/*"]
+    },
     "strictNullChecks": false,
     "noImplicitAny": false,
     "strictBindCallApply": false,
