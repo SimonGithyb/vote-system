@@ -20,6 +20,7 @@
     "roboto-fontface": "*",
     "sass": "^1.94.2",
     "sass-loader": "^16.0.6",
+    "socket.io-client": "^4.8.3",
     "vite-plugin-vuetify": "^2.1.0",
     "vue": "^3.2.13",
     "vue-generate-component": "^3.0.1",

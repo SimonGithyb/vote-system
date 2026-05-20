@@ -3,8 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import MainComp from '@/components/MainComp/MainComp.vue';
 import LoginComp from '@/components/LoginComp/LoginComp.vue';
 import RegistrationComp from '@/components/RegistrationComp/RegistrationComp.vue';
-import VoteCastComp from '@/components/voteModules/voteCastComp/VoteCastComp.vue';
-import VoteCreatorComp from '@/components/voteModules/voteCreatorComp/VoteCreatorComp.vue';
+import VoteModule from '@/components/voteModules/VoteModule.vue';
 
 
 const router = createRouter({
@@ -27,13 +26,8 @@ const router = createRouter({
     },
     {
       path: '/votes',
-      name: 'VoteCastComp',
-      component: VoteCastComp,
-    },
-    {
-      path: '/createVotes',
-      name: 'VoteCreatorComp',
-      component: VoteCreatorComp,
+      name: 'Votes',
+      component: VoteModule,
     }
 ],
 });
