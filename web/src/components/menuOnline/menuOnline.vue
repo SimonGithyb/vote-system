@@ -4,7 +4,6 @@
   <nav class="desktop-nav">
     <RouterLink to="/" class="routerLink">HOME</RouterLink>
     <RouterLink to="/votes" class="routerLink">VOTES</RouterLink>
-    <RouterLink to="/createVotes" class="routerLink">CREATE VOTE</RouterLink>
     <a @click="logout" class="routerLink">LOGOUT</a>
     <ThemeSwitcher />
   </nav>
@@ -23,7 +22,6 @@
       <div class="mobile-menu-links">
         <RouterLink to="/" @click="mobileMenuVisible = false">HOME</RouterLink>
         <RouterLink to="/votes" @click="mobileMenuVisible = false">VOTES</RouterLink>
-        <RouterLink to="/createVotes" @click="mobileMenuVisible = false">CREATE VOTE</RouterLink>
         <a @click="logout" class="logout-link">LOGOUT</a>
       </div>
     </Drawer>
