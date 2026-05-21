@@ -5,6 +5,7 @@ import { VoteService } from './vote.service';
 import { VoteDto } from './dto/vote.dto';
 import { GiveVoteDto } from './dto/give-vote.dto';
 import { AuthenticationGuard } from '../guards/authentication.guard';
+import { OptionalAuthenticationGuard } from '../guards/optional-authentication.guard';
 
 @ApiTags('vote')
 @Controller('vote')
@@ -84,7 +85,7 @@ export class VoteController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(AuthenticationGuard)
+  @UseGuards(OptionalAuthenticationGuard)
   @Post('saveVoteCast')
   @ApiOperation({ summary: 'Cast a vote' })
   async saveUserVote(@Body() data: GiveVoteDto, @Req() req) {

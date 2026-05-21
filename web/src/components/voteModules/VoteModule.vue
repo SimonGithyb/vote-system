@@ -177,22 +177,37 @@
   </Dialog>
 
   <!-- DIALOG: RESULTS -->
-  <Dialog v-model:visible="isResultsDialog" modal header="VOTE RESULTS" :style="{ width: '35rem' }">
+  <Dialog v-model:visible="isResultsDialog" modal header="VOTE RESULTS" :style="{ width: '45rem' }">
     <div v-if="resultsData" class="results-workflow">
       <h2 class="text-center">{{ resultsData.voteName }}</h2>
+      
       <div class="navigation-controls">
         <button @click="prevResultQ" class="nav-btn" :disabled="curResultQIdx === 0">
           <img src="arrow-left-svgrepo-com.svg" width="20" height="20" />
         </button>
-        <span class="progress-label">Results for Question {{ curResultQIdx + 1 }}</span>
+        <div class="progress-info">
+          <span class="progress-label">Question {{ curResultQIdx + 1 }} of {{ resultsQuestions.length }}</span>
+          <h4 class="mt-2 text-center">{{ resultsQuestions[curResultQIdx]?.name }}</h4>
+        </div>
         <button @click="nextResultQ" class="nav-btn" :disabled="curResultQIdx === resultsQuestions.length - 1">
           <img src="arrow-right-svgrepo-com.svg" width="20" height="20" />
         </button>
       </div>
 
+      <div class="view-toggle mb-4 text-center">
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-outline-primary" :class="{ active: resultViewType === 'pie' }" @click="resultViewType = 'pie'">Pie Chart</button>
+          <button type="button" class="button-bar-chart btn btn-outline-primary" :class="{ active: resultViewType === 'bar' }" @click="resultViewType = 'bar'">Bar Chart</button>
+          <button type="button" class="btn btn-outline-primary" :class="{ active: resultViewType === 'list' }" @click="resultViewType = 'list'">List View</button>
+        </div>
+      </div>
+
       <div class="results-container">
-        <h4>{{ resultsQuestions[curResultQIdx]?.name }}</h4>
-        <div class="results-list">
+        <div v-if="resultViewType === 'pie' || resultViewType === 'bar'" class="chart-wrapper">
+          <Chart :type="resultViewType" :data="chartData" :options="chartOptions" />
+        </div>
+        
+        <div v-else class="results-list">
           <div v-for="res in filteredResults" :key="res.answerName" class="result-row">
             <span class="ans-name">{{ res.answerName }}</span>
             <div class="ans-stats">
@@ -217,6 +232,7 @@ import Dialog from 'primevue/dialog';
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Paginator from 'primevue/paginator';
+import Chart from 'primevue/chart';
 import httpService from '@/services/http.service';
 import socketService from '@/services/socket.service';
 import { useSnackbarStore } from '@/stores/snackbar';
@@ -224,7 +240,7 @@ import { useAuthStore } from '@/stores/auth';
 
 export default {
   name: 'VoteModule',
-  components: { Dialog, Button, InputText, Paginator },
+  components: { Dialog, Button, InputText, Paginator, Chart },
   data() {
     return {
       currentTab: 'browse', // 'browse', 'my-votes', 'create'
@@ -257,6 +273,7 @@ export default {
       resultsData: null,
       resultsQuestions: [],
       curResultQIdx: 0,
+      resultViewType: 'pie', // 'pie', 'bar', 'list'
 
       categories: [
         { name: 'all', signature: 'All Votes', title: 'See everything', active: 'all' },
@@ -283,6 +300,49 @@ export default {
       if (!this.resultsData || !this.resultsQuestions[this.curResultQIdx]) return [];
       const qName = this.resultsQuestions[this.curResultQIdx].name;
       return this.resultsData.results.filter(r => r.questionName === qName);
+    },
+    chartData() {
+      const results = this.filteredResults;
+      return {
+        labels: results.map(r => r.answerName),
+        datasets: [
+          {
+            data: results.map(r => r.quantity),
+            backgroundColor: [
+              '#42A5F5', '#66BB6A', '#FFA726', '#26C6DA', '#7E57C2', 
+              '#EC407A', '#FFEE58', '#AB47BC', '#26A69A', '#FF7043'
+            ],
+            hoverBackgroundColor: [
+              '#64B5F6', '#81C784', '#FFB74D', '#4DD0E1', '#9575CD',
+              '#F06292', '#FFF176', '#BA68C8', '#4DB6AC', '#FF8A65'
+            ]
+          }
+        ]
+      };
+    },
+    chartOptions() {
+      const isBar = this.resultViewType === 'bar';
+      return {
+        plugins: {
+          legend: {
+            display: !isBar,
+            position: 'bottom',
+            labels: {
+              usePointStyle: true
+            }
+          }
+        },
+        scales: isBar ? {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        } : {},
+        responsive: true,
+        maintainAspectRatio: false
+      };
     }
   },
   mounted() {
@@ -442,6 +502,12 @@ export default {
         useSnackbarStore().show('This vote has ended!', { type: 'error' });
         return;
       }
+
+      if (vote.type === 'private' && !this.accessToken) {
+        useSnackbarStore().show('Private vote: Please log in to participate.', { type: 'error' });
+        return;
+      }
+
       this.selectedVote = vote;
       this.userAnswers = new Array(vote.questions.length).fill('');
       this.curQIdx = 0;
@@ -671,37 +737,70 @@ export default {
   input { width: 20px; height: 20px; }
 }
 
+.results-container {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-wrapper {
+  height: 350px;
+  width: 100%;
+  margin: 1.5rem 0;
+  flex-grow: 1;
+}
+
 .results-list {
   width: 100%;
   margin-top: 1.5rem;
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 10px;
+
+  .result-row {
+    margin-bottom: 1.5rem;
+  }
+
+  .ans-stats {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .ans-count { font-size: 0.8rem; min-width: 60px; }
+
+  .ans-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: rgba(0,0,0,0.05);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .ans-bar-fill {
+    height: 100%;
+    background: var(--primary-color);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
 }
 
-.result-row {
-  margin-bottom: 1.5rem;
-}
-
-.ans-stats {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-
-.ans-count { font-size: 0.8rem; min-width: 60px; }
-
-.ans-bar-bg {
+.progress-info {
   flex: 1;
-  height: 8px;
-  background: rgba(0,0,0,0.05);
-  border-radius: 4px;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.ans-bar-fill {
-  height: 100%;
-  background: var(--primary-color);
-  border-radius: 4px;
-  transition: width 0.5s ease;
+.view-toggle {
+  .btn-group {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    .btn {
+      padding: 0.5rem 1.2rem;
+      font-weight: 600;
+    }
+  }
 }
 
 .badge {
