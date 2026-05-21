@@ -123,17 +123,28 @@ export class VoteService {
     });
   }
 
-  async saveVoteCast(data: GiveVoteDto, userId: string) {
+  async saveVoteCast(data: GiveVoteDto, userId: string | null) {
     const { voteId, answers } = data;
     
-    // Check if user already voted
-    const existingCast = await this.castVoteModel.findOne({ userId, voteId });
-    if (existingCast) {
-      throw new BadRequestException('You have already voted');
+    const vote = await this.voteModel.findById(voteId);
+    if (!vote) {
+      throw new NotFoundException('Vote not found');
+    }
+
+    if (vote.type === 'private' && !userId) {
+      throw new UnauthorizedException('This is a private vote. Please log in to participate.');
+    }
+
+    if (userId) {
+      // Check if user already voted
+      const existingCast = await this.castVoteModel.findOne({ userId, voteId });
+      if (existingCast) {
+        throw new BadRequestException('You have already voted');
+      }
     }
 
     const cast = await this.castVoteModel.create({
-      userId,
+      userId: userId || null,
       voteId,
       answers,
       date: new Date().getTime(),

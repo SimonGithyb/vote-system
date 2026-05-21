@@ -75,8 +75,9 @@ export default {
   max-width: 400px;
   margin: 2rem auto;
   padding: 2rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  background: var(--card-bg);
 
   .field {
     margin-bottom: 1.5rem;
@@ -85,13 +86,23 @@ export default {
     label {
       display: block;
       margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: var(--body-text);
     }
 
     input {
       width: 100%;
-      padding: 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      padding: 0.75rem;
+      border: 1.5px solid var(--input-border);
+      border-radius: 8px;
+      background-color: var(--input-bg);
+      color: var(--body-text);
+      transition: border-color 0.2s ease;
+
+      &:focus {
+        outline: none;
+        border-color: var(--input-focus);
+      }
     }
   }
 
@@ -116,15 +127,18 @@ export default {
     button {
       width: 100%;
       padding: 0.75rem;
-      background-color: #4CAF50;
+      background-color: var(--primary-color);
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 1rem;
+      font-weight: 700;
+      transition: all 0.2s ease;
 
       &:hover {
-        background-color: #45a049;
+        filter: brightness(1.1);
+        transform: translateY(-2px);
       }
     }
   }
