@@ -181,6 +181,34 @@ export class AuthService {
     };
   }
 
+  async validateGoogleUser(googleUser: any) {
+    const { email, firstName, lastName, googleId } = googleUser;
+    
+    let user = await this.UserModel.findOne({ googleId });
+
+    if (!user) {
+      // Check if user exists with the same email
+      user = await this.UserModel.findOne({ email });
+      
+      if (user) {
+        // Link google account to existing user
+        user.googleId = googleId;
+        await user.save();
+      } else {
+        // Create new user
+        user = await this.UserModel.create({
+          email,
+          name: firstName,
+          surname: lastName,
+          googleId,
+          // No password for social users
+        });
+      }
+    }
+
+    return user;
+  }
+
   async storeRefreshToken(token: string, userId) {
     //Calculate expiry date 1 days from now
     const expiryDate = new Date();
