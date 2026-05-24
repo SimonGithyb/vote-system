@@ -1,5 +1,7 @@
-import { Controller, Get, Post, Body, Put, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, UseGuards, Req, Res } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { ConfigService } from '@nestjs/config';
 
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
@@ -15,7 +17,26 @@ import { AuthorizationGuard } from '../guards/authorization.guard';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  @ApiOperation({ summary: 'Initiate Google OAuth' })
+  async googleAuth(@Req() req) {}
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  @ApiOperation({ summary: 'Google OAuth callback' })
+  async googleAuthRedirect(@Req() req, @Res() res) {
+    const tokens = await this.authService.generateUserTokens(req.user._id);
+    const frontendUrl = this.configService.get('FRONTEND_URL') || 'http://localhost:8080';
+    
+    // Redirect back to frontend with tokens
+    res.redirect(`${frontendUrl}/login?accessToken=${tokens.accessToken}&refreshToken=${tokens.RefreshToken}&userId=${req.user._id}`);
+  }
 
   @Post('signup')
   @ApiOperation({ summary: 'User signup' })

@@ -53,12 +53,26 @@
     <div class="submit">
         <button type="submit" :disabled="!isFormValid">Create an Account</button>
     </div>
+
+    <div class="divider">
+      <span>OR</span>
+    </div>
+
+    <div class="social-login">
+      <button type="button" @click="loginWithGoogle" class="google-btn">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18px" height="18px" alt="Google"/>
+        Sign up with Google
+      </button>
+    </div>
   </form>
 </section>
 </template>
 
 <script>
 import httpService from '@/services/http.service';
+import { useSnackbarStore } from '@/stores/snackbar';
+import { useAuthStore } from '@/stores/auth';
+import config from '@/config';
 
 export default {
     name: 'RegistrationComp',
@@ -75,6 +89,9 @@ export default {
             eyeSvg2: 'close-eye',
             terms: false,
         }
+    },
+    mounted() {
+      this.checkSocialLogin();
     },
     computed: {
         requirements() {
@@ -96,6 +113,26 @@ export default {
         }
     },
     methods: {
+        checkSocialLogin() {
+          const urlParams = new URLSearchParams(window.location.search);
+          const accessToken = urlParams.get('accessToken');
+          const refreshToken = urlParams.get('refreshToken');
+          const userId = urlParams.get('userId');
+
+          if (accessToken && userId) {
+            const auth = useAuthStore();
+            const snackbar = useSnackbarStore();
+            
+            auth.login({
+              accessToken,
+              RefreshToken: refreshToken,
+              userId
+            });
+
+            snackbar.show("Account created and logged in via Google!", {type: 'success'});
+            this.$router.push('/');
+          }
+        },
         async handleSubmit() {
             if (!this.isFormValid) return;
 
@@ -110,6 +147,9 @@ export default {
             } catch (error) {
                 // error is handled by interceptor
             }
+        },
+        loginWithGoogle() {
+          window.location.href = `${config.API_URL}/auth/google`;
         },
         togglePass(idx) {
             if (idx === 0) {
@@ -203,6 +243,54 @@ export default {
       background: var(--input-border); 
       cursor: not-allowed; 
       opacity: 0.6;
+    }
+  }
+
+  .divider {
+    margin: 1.5rem 0;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: var(--body-text);
+    opacity: 0.6;
+
+    &::before, &::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    span {
+      padding: 0 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+  }
+
+  .google-btn {
+    width: 100%;
+    padding: 1rem;
+    background-color: white;
+    color: #757575;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #f8f8f8;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transform: translateY(-1px);
+    }
+
+    img {
+      display: block;
     }
   }
 }

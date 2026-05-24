@@ -24,6 +24,17 @@
       <button type="submit">Log In</button>
     </div>
 
+    <div class="divider">
+      <span>OR</span>
+    </div>
+
+    <div class="social-login">
+      <button type="button" @click="loginWithGoogle" class="google-btn">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18px" height="18px" alt="Google"/>
+        Continue with Google
+      </button>
+    </div>
+
   </form>
 </section>
 </template>
@@ -32,6 +43,7 @@
 import httpService from '@/services/http.service';
 import { useSnackbarStore } from '@/stores/snackbar';
 import { useAuthStore } from '@/stores/auth';
+import config from '@/config';
 
 export default {
   name: 'LoginComp',
@@ -43,7 +55,30 @@ export default {
       eyeSvg: 'close-eye',
     }
   },
+  mounted() {
+    this.checkSocialLogin();
+  },
   methods: {
+    checkSocialLogin() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const accessToken = urlParams.get('accessToken');
+      const refreshToken = urlParams.get('refreshToken');
+      const userId = urlParams.get('userId');
+
+      if (accessToken && userId) {
+        const auth = useAuthStore();
+        const snackbar = useSnackbarStore();
+        
+        auth.login({
+          accessToken,
+          RefreshToken: refreshToken,
+          userId
+        });
+
+        snackbar.show("Logged in via Google!", {type: 'success'});
+        this.$router.push('/');
+      }
+    },
     async handleSubmit() {
       const snackbar = useSnackbarStore();
       const auth = useAuthStore();
@@ -61,6 +96,9 @@ export default {
       } catch (error) {
         snackbar.show(error.response?.data?.message || "Login failed", {type: 'error'});
       }
+    },
+    loginWithGoogle() {
+      window.location.href = `${config.API_URL}/auth/google`;
     },
     obfuscateToggle() {
       this.eyeSvg = this.eyeSvg === "close-eye" ? "eye" : "close-eye";
@@ -140,6 +178,54 @@ export default {
         filter: brightness(1.1);
         transform: translateY(-2px);
       }
+    }
+  }
+
+  .divider {
+    margin: 1.5rem 0;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: var(--body-text);
+    opacity: 0.6;
+
+    &::before, &::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    span {
+      padding: 0 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+  }
+
+  .google-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: white;
+    color: #757575;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #f8f8f8;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transform: translateY(-1px);
+    }
+
+    img {
+      display: block;
     }
   }
 }
